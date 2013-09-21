@@ -16,7 +16,7 @@
             </descriptorRefs>
             <archive>
               <manifest>
-                <mainClass>hadoop.mapred.WordCount</mainClass>
+                <mainClass>ar.edu.itba.it.bigdata.mapreduce.TakeOffDelay</mainClass>
               </manifest>
             </archive>
           </configuration>
