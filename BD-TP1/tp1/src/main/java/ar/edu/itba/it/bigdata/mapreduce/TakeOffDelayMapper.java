@@ -3,6 +3,7 @@ package ar.edu.itba.it.bigdata.mapreduce;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.text.DateFormatSymbols;
 import java.util.HashMap;
 
 import org.apache.hadoop.fs.FSDataInputStream;
@@ -25,11 +26,12 @@ public class TakeOffDelayMapper extends
 		String airportInformation = airportsHashTable.get(IATA_code);
 		if (airportInformation != null) {
 			String airportFields[] = airportInformation.split(",");
-			String state = airportFields[4];
+			String state = airportFields[2];
 			String depDelay = flightInformation[15];
-			String month = flightInformation[1];
+			Integer month = Integer.parseInt(flightInformation[1]);
+			String monthString = new DateFormatSymbols().getMonths()[month-1];
 			String sendToReducer = depDelay;
-			String keyForReducer = state + "-" + month;
+			String keyForReducer = state + "-" + monthString;
 			context.write(new Text(keyForReducer), new Text(sendToReducer));
 		} else {
 			System.out.println("Lookup for " + IATA_code + " gave null!");
