@@ -16,7 +16,7 @@
             </descriptorRefs>
             <archive>
               <manifest>
-                <mainClass>ar.edu.itba.it.bigdata.mapreduce.cancelledFlights.CancelledFlights</mainClass>
+                <mainClass>ar.edu.itba.it.bigdata.mapreduce.flownMiles.FlownMiles</mainClass>
               </manifest>
             </archive>
           </configuration>
