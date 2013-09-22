@@ -1,4 +1,4 @@
-package ar.edu.itba.it.bigdata.mapreduce;
+package ar.edu.itba.it.bigdata.mapreduce.delay;
 
 import java.io.BufferedReader;
 import java.io.IOException;

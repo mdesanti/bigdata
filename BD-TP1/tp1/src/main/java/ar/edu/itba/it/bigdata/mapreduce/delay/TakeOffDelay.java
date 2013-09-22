@@ -1,4 +1,4 @@
-package ar.edu.itba.it.bigdata.mapreduce;
+package ar.edu.itba.it.bigdata.mapreduce.delay;
 
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.DoubleWritable;
