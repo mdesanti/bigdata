@@ -29,7 +29,7 @@ public class FlightHoursMapper extends Mapper<LongWritable, Text, Text, DoubleWr
 			String airTime = flightInformation[13];
 			try {
 				Double flightTime = Double.parseDouble(airTime);
-				context.write(new Text(planeType), new DoubleWritable(flightTime));
+				context.write(new Text(tailNumber), new DoubleWritable(flightTime));
 			} catch(NumberFormatException e) {
 				//do nothing, flightTime can be NA
 			}
