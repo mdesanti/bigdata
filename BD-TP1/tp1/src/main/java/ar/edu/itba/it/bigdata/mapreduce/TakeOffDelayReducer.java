@@ -12,7 +12,6 @@ public class TakeOffDelayReducer extends
 	public void reduce(Text key, Iterable<Text> values, Context context)
 			throws IOException, InterruptedException {
 
-		System.out.println("Reducer");
 		int count = 0;
 		int times = 0;
 		for (Text value : values) {
@@ -28,7 +27,7 @@ public class TakeOffDelayReducer extends
 		if(times == 0 ) {
 			context.write(key, new DoubleWritable(0));
 		} else {
-			context.write(key, new DoubleWritable(count / times));
+			context.write(key, new DoubleWritable(count / (double)times));
 		}
 	}
 }

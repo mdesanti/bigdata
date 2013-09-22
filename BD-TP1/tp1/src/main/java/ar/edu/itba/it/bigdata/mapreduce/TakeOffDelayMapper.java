@@ -13,14 +13,13 @@ import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 
-public class TakeOffDelayMapper extends
-		Mapper<LongWritable, Text, Text, Text> {
+public class TakeOffDelayMapper extends Mapper<LongWritable, Text, Text, Text> {
 
 	private HashMap<String, String> airportsHashTable;
 
 	public void map(LongWritable key, Text value, Context context)
 			throws IOException, InterruptedException {
-		
+
 		String[] flightInformation = value.toString().split(",");
 		String IATA_code = flightInformation[16];
 		String airportInformation = airportsHashTable.get(IATA_code);
@@ -36,16 +35,18 @@ public class TakeOffDelayMapper extends
 			System.out.println("Lookup for " + IATA_code + " gave null!");
 		}
 	}
-	
+
 	private String getState(String state) {
 		return state.replace("\"", "");
 	}
-	
+
 	private String getMonth(String monthNumber) {
 		Integer month = Integer.parseInt(monthNumber);
-		return new DateFormatSymbols().getMonths()[month-1];
+		return new DateFormatSymbols().getMonths()[month - 1];
 	}
 
+	// we are using broadcast join because airports.csv is small enough to fit
+	// into memory (about 280 KB)
 	@Override
 	protected void setup(Context context) throws IOException,
 			InterruptedException {
