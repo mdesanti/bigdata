@@ -26,16 +26,24 @@ public class TakeOffDelayMapper extends
 		String airportInformation = airportsHashTable.get(IATA_code);
 		if (airportInformation != null) {
 			String airportFields[] = airportInformation.split(",");
-			String state = airportFields[2];
+			String state = getState(airportFields[2]);
 			String depDelay = flightInformation[15];
-			Integer month = Integer.parseInt(flightInformation[1]);
-			String monthString = new DateFormatSymbols().getMonths()[month-1];
+			String month = getMonth(flightInformation[1]);
 			String sendToReducer = depDelay;
-			String keyForReducer = state + "-" + monthString;
+			String keyForReducer = state + "-" + month;
 			context.write(new Text(keyForReducer), new Text(sendToReducer));
 		} else {
 			System.out.println("Lookup for " + IATA_code + " gave null!");
 		}
+	}
+	
+	private String getState(String state) {
+		return state.replace("\"", "");
+	}
+	
+	private String getMonth(String monthNumber) {
+		Integer month = Integer.parseInt(monthNumber);
+		return new DateFormatSymbols().getMonths()[month-1];
 	}
 
 	@Override
