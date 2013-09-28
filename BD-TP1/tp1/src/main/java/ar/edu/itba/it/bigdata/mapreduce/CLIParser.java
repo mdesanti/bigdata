@@ -29,50 +29,59 @@ import ar.edu.itba.it.bigdata.mapreduce.flownMiles.FlownMilesReducer;
  */
 @SuppressWarnings("all")
 public class CLIParser {
-    private static Options getInputOptions() {
+    private static final String PLANE_TYPE = "planeType";
+	private static final String CARRIERS_FILE = "carriersFile";
+	private static final String OUT_PATH = "outPath";
+	private static final String IN_FILE = "inFile";
+	private static final String FLOWN_MILES = "flownMiles";
+	private static final String FLIGHT_HOURS = "flightHours";
+	private static final String TAKE_OFF_DELAY = "takeOffDelay";
+	private static final String CANCELLED_FLIGHTS = "cancelledFlights";
+
+	private static Options getInputOptions() {
         final Options opts = new Options();
 
 
         final Option cancelledFlights = OptionBuilder
-                .withLongOpt("cancelledFlights")
+                .withLongOpt(CANCELLED_FLIGHTS)
                 .withDescription(
                         "Calculates the amount of cancelled flights according to carrier")
-                .create("cancelledFlights");
+                .create(CANCELLED_FLIGHTS);
 
         final Option takeOffDelay = OptionBuilder
-                .withLongOpt("takeOffDelay")
+                .withLongOpt(TAKE_OFF_DELAY)
                 .withDescription("Calculates the average take off delay for each airport")
-                .create("takeOffDelay");
+                .create(TAKE_OFF_DELAY);
 
         final Option flightHours = OptionBuilder
-                .withLongOpt("flightHours")
+                .withLongOpt(FLIGHT_HOURS)
                 .withDescription(
                         "Calculates the amount of flight hours for each plane of the given plane type")
-                .create("flightHours");
+                .create(FLIGHT_HOURS);
 
-        final Option flownMiles = OptionBuilder.withLongOpt("flownMiles")
+        final Option flownMiles = OptionBuilder.withLongOpt(FLOWN_MILES)
                 .withDescription("The amount of flown miles")
-                .hasArg().create("flownMiles");
+                .hasArg().create(FLOWN_MILES);
         
-        final Option inFile = OptionBuilder.withLongOpt("inFile")
+        final Option inFile = OptionBuilder.withLongOpt(IN_FILE)
         						.withDescription("The path to the input file")
         						.hasArg()
-        						.create("inFile");
+        						.create(IN_FILE);
         
-        final Option outPath = OptionBuilder.withLongOpt("outPath")
+        final Option outPath = OptionBuilder.withLongOpt(OUT_PATH)
 				.withDescription("The path to the output file")
 				.hasArg()
-				.create("outPath");
+				.create(OUT_PATH);
         
-        final Option carriers = OptionBuilder.withLongOpt("carriersFile")
+        final Option carriers = OptionBuilder.withLongOpt(CARRIERS_FILE)
 				.withDescription("The path to the carriers file")
 				.hasArg()
-				.create("carriersFile");
+				.create(CARRIERS_FILE);
         
-        final Option planeType = OptionBuilder.withLongOpt("planeType")
+        final Option planeType = OptionBuilder.withLongOpt(PLANE_TYPE)
 				.withDescription("The plane type")
 				.hasArg()
-				.create("planeType");
+				.create(PLANE_TYPE);
 
 
         opts.addOption(cancelledFlights);
@@ -94,31 +103,31 @@ public class CLIParser {
         if (line.hasOption("help")) {
             return null;
         } else {
-        	if(!line.hasOption("inFile") || !line.hasOption("outPath")) {
+        	if(!line.hasOption(IN_FILE) || !line.hasOption(OUT_PATH)) {
         		return null;
         	}
             AppConfig config = new AppConfig();
-            config.setInPath(line.getOptionValue("inFile"));
-            config.setOutPath(line.getOptionValue("outPath"));
+            config.setInPath(line.getOptionValue(IN_FILE));
+            config.setOutPath(line.getOptionValue(OUT_PATH));
             
-            if (line.hasOption("cancelledFlights") && line.hasOption("carriersFile")) {
+            if (line.hasOption(CANCELLED_FLIGHTS) && line.hasOption(CARRIERS_FILE)) {
             	config.setMapper(CancelledFlightsMapper.class);
             	config.setReducer(CancelledFlightsReducer.class);
-            	config.setCarriersPath(line.getOptionValue("carriersFile"));
+            	config.setCarriersPath(line.getOptionValue(CARRIERS_FILE));
             	
-            }else if(line.hasOption("takeOffDelay")) {
+            }else if(line.hasOption(TAKE_OFF_DELAY)) {
             	config.setMapper(TakeOffDelayMapper.class);
             	config.setReducer(TakeOffDelayReducer.class);
             	
-            } else if(line.hasOption("flightHours") && line.hasOption("planeType")) {
+            } else if(line.hasOption(FLIGHT_HOURS) && line.hasOption(PLANE_TYPE)) {
             	config.setMapper(FlightHoursMapper.class);
             	config.setReducer(FlightHoursReducer.class);
-            	config.setPlaneType(line.getOptionValue("planeType"));
+            	config.setPlaneType(line.getOptionValue(PLANE_TYPE));
             	
-            } else if(line.hasOption("flownMiles") && line.hasOption("carriersFile")) {
+            } else if(line.hasOption(FLOWN_MILES) && line.hasOption(CARRIERS_FILE)) {
             	config.setMapper(FlownMilesMapper.class);
             	config.setReducer(FlownMilesReducer.class);
-            	config.setCarriersPath(line.getOptionValue("carriersFile"));
+            	config.setCarriersPath(line.getOptionValue(CARRIERS_FILE));
             	
             } else {
             	return null;
