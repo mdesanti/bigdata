@@ -91,6 +91,7 @@ public class CLIParser {
         opts.addOption(inFile);
         opts.addOption(carriers);
         opts.addOption(outPath);
+        opts.addOption(planeType);
         
         return opts;
     }

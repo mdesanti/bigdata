@@ -15,6 +15,8 @@ import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
 import ar.edu.itba.it.bigdata.mapreduce.Utils;
 
@@ -22,6 +24,7 @@ public class FlightHoursMapper extends Mapper<LongWritable, Text, Text, DoubleWr
 
 	private HashMap<String, String> planeInformationHashTable = new HashMap<String, String>();
 	private String planeType;
+	private Logger logger = Logger.getLogger("Flight Hours Mapper");
 
 	public void map(LongWritable key, Text value, Context context)
 			throws IOException, InterruptedException {
@@ -42,25 +45,30 @@ public class FlightHoursMapper extends Mapper<LongWritable, Text, Text, DoubleWr
 		}
 	}
 	@Override
-	protected void setup(Context context) throws IOException,
-			InterruptedException {
+	protected void setup(Context context) throws InterruptedException {
 		
-		this.planeType = context.getConfiguration().get("planeType");
+		this.planeType = context.getConfiguration().get("planeType").toLowerCase();
 		
 		HTable table = Utils.getTable(context, "itba_tp1_planes");
 		Scan scan = Utils.getScan("general");
 		
-		ResultScanner scanner = table.getScanner(scan);
+		ResultScanner scanner = null;
+		try {
+			scanner = table.getScanner(scan);
+		} catch (IOException e) {
+			logger.log(Level.ERROR, "IOException while getting scanner");
+		}
 		
 		Iterator<Result> resultIterator = scanner.iterator();
 		
 		while(resultIterator.hasNext()) {
 			Result result = resultIterator.next();
 			
-			List<KeyValue> list = result.getColumn("info".getBytes(), "manufacturer".getBytes());
+			List<KeyValue> list = result.getColumn("general".getBytes(), "manufacturer".getBytes());
 			for(KeyValue kv: list) {
 				String key = Bytes.toStringBinary ( kv.getKey(), 2, kv.getRowLength() );
-				String manufacturer = new String(kv.getValue());
+				String manufacturer = new String(kv.getValue()).toLowerCase();
+				logger.log(Level.INFO, "Looking for -> " + planeType + "|| Got from database -> " + key + " -- " + manufacturer);
 				if(manufacturer.equals(planeType)) {
 					planeInformationHashTable.put(key, manufacturer);
 				}
