@@ -10,6 +10,7 @@ import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
+import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
@@ -19,7 +20,7 @@ import ar.edu.itba.it.bigdata.mapreduce.Utils;
 
 public class FlightHoursMapper extends Mapper<LongWritable, Text, Text, DoubleWritable> {
 
-	private HashMap<String, String> planeInformationHashTable;
+	private HashMap<String, String> planeInformationHashTable = new HashMap<String, String>();
 	private String planeType;
 
 	public void map(LongWritable key, Text value, Context context)
@@ -58,9 +59,10 @@ public class FlightHoursMapper extends Mapper<LongWritable, Text, Text, DoubleWr
 			
 			List<KeyValue> list = result.getColumn("info".getBytes(), "manufacturer".getBytes());
 			for(KeyValue kv: list) {
+				String key = Bytes.toStringBinary ( kv.getKey(), 2, kv.getRowLength() );
 				String manufacturer = new String(kv.getValue());
 				if(manufacturer.equals(planeType)) {
-					planeInformationHashTable.put(kv.getKeyString(), new String(kv.getValue()));
+					planeInformationHashTable.put(key, manufacturer);
 				}
 			}
 		}

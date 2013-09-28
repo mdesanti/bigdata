@@ -6,23 +6,21 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
+import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 
-import ar.edu.itba.it.bigdata.mapreduce.App;
 import ar.edu.itba.it.bigdata.mapreduce.Utils;
 
 public class TakeOffDelayMapper extends Mapper<LongWritable, Text, Text, Text> {
 
-	private HashMap<String, String> airportsHashTable;
+	private HashMap<String, String> airportsHashTable = new HashMap<String, String>();
 	
 	public void map(LongWritable key, Text value, Context context)
 			throws IOException, InterruptedException {
@@ -62,7 +60,9 @@ public class TakeOffDelayMapper extends Mapper<LongWritable, Text, Text, Text> {
 			
 			List<KeyValue> list = result.getColumn("info".getBytes(), "state".getBytes());
 			for(KeyValue kv: list) {
-				airportsHashTable.put(kv.getKeyString(), new String(kv.getValue()));
+				String key = Bytes.toStringBinary ( kv.getKey(), 2, kv.getRowLength() );
+				String value = new String(kv.getValue());
+				airportsHashTable.put(key, value);
 			}
 		}
 	}
