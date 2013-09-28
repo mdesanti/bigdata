@@ -1,31 +1,36 @@
 package ar.edu.itba.it.bigdata.mapreduce.delay;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.text.DateFormatSymbols;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 
-import org.apache.hadoop.fs.FSDataInputStream;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.HBaseConfiguration;
+import org.apache.hadoop.hbase.KeyValue;
+import org.apache.hadoop.hbase.client.HTable;
+import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.client.ResultScanner;
+import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 
+import ar.edu.itba.it.bigdata.mapreduce.App;
+import ar.edu.itba.it.bigdata.mapreduce.Utils;
+
 public class TakeOffDelayMapper extends Mapper<LongWritable, Text, Text, Text> {
 
 	private HashMap<String, String> airportsHashTable;
-
+	
 	public void map(LongWritable key, Text value, Context context)
 			throws IOException, InterruptedException {
 
 		String[] flightInformation = value.toString().split(",");
 		String IATA_code = flightInformation[16];
-		String airportInformation = airportsHashTable.get(IATA_code);
-		if (airportInformation != null) {
-			String airportFields[] = airportInformation.split(",");
-			String state = getState(airportFields[2]);
+		String state = airportsHashTable.get(IATA_code);
+		if (state != null) {
 			String depDelay = flightInformation[15];
 			String month = getMonth(flightInformation[1]);
 			String sendToReducer = depDelay;
@@ -36,47 +41,29 @@ public class TakeOffDelayMapper extends Mapper<LongWritable, Text, Text, Text> {
 		}
 	}
 
-	private String getState(String state) {
-		return state.replace("\"", "");
-	}
-
 	private String getMonth(String monthNumber) {
 		Integer month = Integer.parseInt(monthNumber);
 		return new DateFormatSymbols().getMonths()[month - 1];
 	}
 
-	// we are using broadcast join because airports.csv is small enough to fit
-	// into memory (about 280 KB)
 	@Override
 	protected void setup(Context context) throws IOException,
 			InterruptedException {
-		airportsHashTable = new HashMap<String, String>();
-		FileSystem fs = null;
-		FSDataInputStream inputStream = null;
-		try {
-			fs = FileSystem.get(context.getConfiguration());
-			inputStream = fs
-					.open(new Path("/user/mdesanti90/ref/airports.csv"));
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		// Read the broadcasted file
-		BufferedReader br = new BufferedReader(new InputStreamReader(
-				inputStream));
-		// Hashtable to store the tuples
-
-		String line = null;
-		try {
-			while ((line = br.readLine()) != null) {
-				String airportInformation[] = line.split(",", 2);
-				// Insert into Hashtable
-				String IATA_code = airportInformation[0];
-				IATA_code = IATA_code.replace("\"", "");
-				airportsHashTable.put(IATA_code, airportInformation[1]);
+		
+		HTable table = Utils.getTable(context, "itba_tp1_airports");
+		Scan scan = Utils.getScan("info");
+		
+		ResultScanner scanner = table.getScanner(scan);
+		
+		Iterator<Result> resultIterator = scanner.iterator();
+		
+		while(resultIterator.hasNext()) {
+			Result result = resultIterator.next();
+			
+			List<KeyValue> list = result.getColumn("info".getBytes(), "state".getBytes());
+			for(KeyValue kv: list) {
+				airportsHashTable.put(kv.getKeyString(), new String(kv.getValue()));
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
 	}
 }

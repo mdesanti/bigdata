@@ -1,18 +1,21 @@
 package ar.edu.itba.it.bigdata.mapreduce.flightHours;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.text.DateFormatSymbols;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 
-import org.apache.hadoop.fs.FSDataInputStream;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.hbase.KeyValue;
+import org.apache.hadoop.hbase.client.HTable;
+import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.client.ResultScanner;
+import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
+
+import ar.edu.itba.it.bigdata.mapreduce.Utils;
 
 public class FlightHoursMapper extends Mapper<LongWritable, Text, Text, DoubleWritable> {
 
@@ -34,48 +37,32 @@ public class FlightHoursMapper extends Mapper<LongWritable, Text, Text, DoubleWr
 				//do nothing, flightTime can be NA
 			}
 		} else {
-			
+			//do nothing, plane might not be of the type we want!
 		}
 	}
-	// we are using broadcast join because airports.csv is small enough to fit
-	// into memory (about 280 KB)
 	@Override
 	protected void setup(Context context) throws IOException,
 			InterruptedException {
+		
 		this.planeType = context.getConfiguration().get("planeType");
-		planeInformationHashTable = new HashMap<String, String>();
-		FileSystem fs = null;
-		FSDataInputStream inputStream = null;
-		try {
-			fs = FileSystem.get(context.getConfiguration());
-			inputStream = fs
-					.open(new Path("/user/mdesanti90/ref/plane-data.csv"));
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		// Read the broadcasted file
-		BufferedReader br = new BufferedReader(new InputStreamReader(
-				inputStream));
-		// Hashtable to store the tuples
-
-		String line = null;
-		try {
-			while ((line = br.readLine()) != null) {
-				String planeInformation[] = line.split(",");
-				if(planeInformation.length > 1) {
-					// Insert into Hashtable
-					String tailNumber = planeInformation[0];
-					String planeType = planeInformation[2];
-					tailNumber = tailNumber.replace("\"", "");
-					planeType = planeType.replace("\"", "");
-					if(planeType.equals(this.planeType)) {
-						planeInformationHashTable.put(tailNumber, planeType);
-					}
+		
+		HTable table = Utils.getTable(context, "itba_tp1_planes");
+		Scan scan = Utils.getScan("general");
+		
+		ResultScanner scanner = table.getScanner(scan);
+		
+		Iterator<Result> resultIterator = scanner.iterator();
+		
+		while(resultIterator.hasNext()) {
+			Result result = resultIterator.next();
+			
+			List<KeyValue> list = result.getColumn("info".getBytes(), "manufacturer".getBytes());
+			for(KeyValue kv: list) {
+				String manufacturer = new String(kv.getValue());
+				if(manufacturer.equals(planeType)) {
+					planeInformationHashTable.put(kv.getKeyString(), new String(kv.getValue()));
 				}
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
 	}
 }

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 
+import org.apache.hadoop.filecache.DistributedCache;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -42,13 +43,14 @@ public class FlownMilesMapper extends Mapper<LongWritable, Text, Text, IntWritab
 	@Override
 	protected void setup(Context context) throws IOException,
 			InterruptedException {
+		Path[] paths = DistributedCache.getArchiveClassPaths(context.getConfiguration());
 		carriersHashTable = new HashMap<String, String>();
 		FileSystem fs = null;
 		FSDataInputStream inputStream = null;
 		try {
 			fs = FileSystem.get(context.getConfiguration());
 			inputStream = fs
-					.open(new Path("/user/mdesanti90/ref/carriers.csv"));
+					.open(paths[0]);
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
