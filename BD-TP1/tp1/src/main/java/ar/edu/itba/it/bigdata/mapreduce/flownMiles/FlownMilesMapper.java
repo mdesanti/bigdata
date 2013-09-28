@@ -13,12 +13,15 @@ import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
 import ar.edu.itba.it.bigdata.mapreduce.Utils;
 
 public class FlownMilesMapper extends Mapper<LongWritable, Text, Text, IntWritable> {
 
 	private HashMap<String, String> carriersHashTable;
+	private Logger logger = Logger.getLogger("Flown Miles Mapper");
 
 	public void map(LongWritable key, Text value, Context context)
 			throws IOException, InterruptedException {
@@ -36,7 +39,7 @@ public class FlownMilesMapper extends Mapper<LongWritable, Text, Text, IntWritab
 				//either the year value is YEAR or the miles is NA
 			}
 		} else {
-			System.out.println("Lookup for " + carrierCode + " gave null!");
+			logger.log(Level.INFO, "Lookup for " + carrierCode + " gave null!");
 		}
 	}
 
