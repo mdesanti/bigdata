@@ -14,6 +14,8 @@ import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 
+import ar.edu.itba.it.bigdata.mapreduce.Utils;
+
 public class CancelledFlightsMapper extends Mapper<LongWritable, Text, Text, IntWritable> {
 
 	private HashMap<String, String> carriersHashTable;
@@ -37,22 +39,9 @@ public class CancelledFlightsMapper extends Mapper<LongWritable, Text, Text, Int
 	@Override
 	protected void setup(Context context) throws IOException,
 			InterruptedException {
-		Path[] paths = DistributedCache.getArchiveClassPaths(context.getConfiguration());
 		carriersHashTable = new HashMap<String, String>();
-		FileSystem fs = null;
-		FSDataInputStream inputStream = null;
-		try {
-			fs = FileSystem.get(context.getConfiguration());
-			inputStream = fs
-					.open(paths[0]);
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		// Read the broadcasted file
-		BufferedReader br = new BufferedReader(new InputStreamReader(
-				inputStream));
-		// Hashtable to store the tuples
+		
+		BufferedReader br = Utils.getBufferedReader(context);
 
 		String line = null;
 		try {
