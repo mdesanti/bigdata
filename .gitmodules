@@ -1,0 +1,3 @@
+[submodule "vagrant-hadoop-dev"]
+	path = vagrant-hadoop-dev
+	url = https://github.com/kshmir/vagrant-hadoop-dev.git
