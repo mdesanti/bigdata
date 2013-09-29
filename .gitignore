@@ -2,6 +2,7 @@
 
 # Package Files #
 *.jar
+*.iml
 *.war
 *.ear
 .classpath
@@ -9,3 +10,4 @@
 .settings/
 target/
 data/*
+.idea
