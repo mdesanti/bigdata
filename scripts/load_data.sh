@@ -1,3 +1,2 @@
 #!/bin/bash
-
-hadoop fs -mkdir /user/hadoop/ITBA/TP1/INPUT/SAMPLE/
+hadoop fs -copyFromLocal data/dump/* /user/hadoop/ITBA/
