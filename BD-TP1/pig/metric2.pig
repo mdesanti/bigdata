@@ -1,6 +1,6 @@
 REGISTER ./pig-0.11.1/contrib/piggybank/java/piggybank.jar;
 
-flights = LOAD '/user/hadoop/ITBA/TP1/INPUT/SAMPLE/data/'
+flights = LOAD '/user/hadoop/ITBA/SAMPLE/data/1987-sample.csv'
           USING org.apache.pig.piggybank.storage.CSVLoader() 
           AS (Year:chararray, Month:chararray, DayofMonth:chararray, DayOfWeek:chararray, 
               DepTime:chararray, CRSDepTime:chararray, ArrTime:chararray, CRSArrTime:chararray,
@@ -17,16 +17,25 @@ airports = LOAD '/user/hadoop/ITBA/TP1/INPUT/SAMPLE/ref/airports.csv'
    When we generate simple_flights, we map the departure delay to a 1 or a 0 to make the addition easier (same with cancellation code)
 */
 simple_flights = FOREACH flights
-                 GENERATE CONCAT((chararray)DayofMonth, CONCAT('/', CONCAT((chararray)Month, CONCAT('/', (chararray)Year)))) AS day:chararray,
-                 (DepDelay > 0 ? 1:0) as delayed:long, DepDelay, Cancelled, Diverted,
-                 (CancellationCode == 'B' ? 1:0) AS weather_cancellation:long;
+                 GENERATE   CONCAT((chararray)DayofMonth,
+                            CONCAT('/',
+                            CONCAT((chararray)Month,
+                            CONCAT('/', (chararray)Year)))) AS day:chararray, /* Fecha */
+                            (DepDelay > 0 ? 1:0) as delayed:long,
+                            DepDelay,
+                            Cancelled,
+                            Diverted,
+                            (CancellationCode == 'B' ? 1:0) AS weather_cancellation:long;
 
 grouped = GROUP simple_flights BY (day);
 
 summed = FOREACH grouped
-         GENERATE simple_flights.day, SUM(simple_flights.delayed) AS totaldelayed:long, SUM(simple_flights.DepDelay) AS totaldelay:long,
-          SUM(simple_flights.Cancelled) AS totalcancelled:long, SUM(simple_flights.Diverted) AS totaldiverted:long, 
-          SUM(simple_flights.weather_cancellation) AS total_weather_cancellation:long;
+         GENERATE simple_flights.day, 
+                  SUM(simple_flights.delayed) AS totaldelayed:long, 
+                  SUM(simple_flights.DepDelay) AS totaldelay:long,
+                  SUM(simple_flights.Cancelled) AS totalcancelled:long, 
+                  SUM(simple_flights.Diverted) AS totaldiverted:long, 
+                  SUM(simple_flights.weather_cancellation) AS total_weather_cancellation:long; 
 
 
 STORE summed into 'top5/pig_output' USING PigStorage (';');
