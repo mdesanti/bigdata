@@ -7,7 +7,7 @@ flights = LOAD '/user/hadoop/ITBA/TP1/INPUT/SAMPLE/data/'
               UniqueCarrier:chararray, FlightNum:chararray, TailNum:chararray,  ActualElapsedTime:chararray,
               CRSElapsedTime:chararray, AirTime:chararray, ArrDelay:chararray, DepDelay:long, origin:chararray,
               Dest:chararray, Distance:chararray, TaxiIn:chararray, TaxiOut:chararray, Cancelled:int,
-              CancellationCode:chararray, Diverted:chararray, CarrierDelay:chararray, WeatherDelay:chararray,
+              CancellationCode:chararray, Diverted:int, CarrierDelay:chararray, WeatherDelay:chararray,
               NASDelay:chararray, SecurityDelay:chararray, LateAircraftDelay:chararray);
 
 airports = LOAD '/user/hadoop/ITBA/TP1/INPUT/SAMPLE/ref/airports.csv' 
@@ -29,10 +29,4 @@ summed = FOREACH grouped
           SUM(simple_flights.weather_cancellation) AS total_weather_cancellation:long;
 
 
-results = FOREACH summed { 
-  generate group, flatten(summed);
-};
-
-simple_results = FOREACH results GENERATE Year, airport, totaldelay;
-
-STORE simple_results into 'top5/pig_output' USING PigStorage (';');
+STORE summed into 'top5/pig_output' USING PigStorage (';');
