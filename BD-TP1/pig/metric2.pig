@@ -21,10 +21,10 @@ simple_flights = FOREACH flights
                  (DepDelay > 0 ? 1:0) as delayed:long, DepDelay, Cancelled, Diverted,
                  (CancellationCode == 'B' ? 1:0) AS weather_cancellation:long;
 
-grouped = GROUP simple_flights BY (day, delayed, DepDelay, Cancelled, Diverted, weather_cancellation);
+grouped = GROUP simple_flights BY (day);
 
 summed = FOREACH grouped
-         GENERATE group.day, SUM(simple_flights.delayed) AS totaldelayed:long, SUM(simple_flights.DepDelay) AS totaldelay:long,
+         GENERATE simple_flights.day, SUM(simple_flights.delayed) AS totaldelayed:long, SUM(simple_flights.DepDelay) AS totaldelay:long,
           SUM(simple_flights.Cancelled) AS totalcancelled:long, SUM(simple_flights.Diverted) AS totaldiverted:long, 
           SUM(simple_flights.weather_cancellation) AS total_weather_cancellation:long;
 
