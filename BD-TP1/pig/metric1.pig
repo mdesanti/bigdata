@@ -22,4 +22,4 @@ results = FOREACH by_year {
 
 simple_results = FOREACH results GENERATE Year, airport, totaldelay;
 
-STORE results into 'top5/pig_output' USING PigStorage (';');
+STORE simple_results into 'top5/pig_output' USING PigStorage (';');
