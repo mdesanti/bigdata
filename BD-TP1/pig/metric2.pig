@@ -17,10 +17,10 @@ airports = LOAD '/user/hadoop/ITBA/TP1/INPUT/SAMPLE/ref/airports.csv'
    When we generate simple_flights, we map the departure delay to a 1 or a 0 to make the addition easier (same with cancellation code)
 */
 simple_flights = FOREACH flights
-                 GENERATE   CONCAT((chararray)DayofMonth,
+                 GENERATE   CONCAT((chararray)Year,
                             CONCAT('/',
                             CONCAT((chararray)Month,
-                            CONCAT('/', (chararray)Year)))) AS day:chararray, /* Fecha */
+                            CONCAT('/', (chararray)DayofMonth)))) AS day:chararray, /* Fecha */
                             (DepDelay > 0 ? 1:0) as delayed:long,
                             DepDelay,
                             Cancelled,
@@ -30,12 +30,11 @@ simple_flights = FOREACH flights
 grouped = GROUP simple_flights BY (day);
 
 summed = FOREACH grouped
-         GENERATE simple_flights.day, 
-                  SUM(simple_flights.delayed) AS totaldelayed:long, 
-                  SUM(simple_flights.DepDelay) AS totaldelay:long,
-                  SUM(simple_flights.Cancelled) AS totalcancelled:long, 
-                  SUM(simple_flights.Diverted) AS totaldiverted:long, 
+         GENERATE group,
+                  SUM(simple_flights.delayed)              AS totaldelayed:long, 
+                  SUM(simple_flights.DepDelay)             AS totaldelay:long,
+                  SUM(simple_flights.Cancelled)            AS totalcancelled:long, 
+                  SUM(simple_flights.Diverted)             AS totaldiverted:long, 
                   SUM(simple_flights.weather_cancellation) AS total_weather_cancellation:long; 
-
 
 STORE summed into 'top5/pig_output' USING PigStorage (';');
