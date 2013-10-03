@@ -1,6 +1,9 @@
-REGISTER ./pig-0.11.1/contrib/piggybank/java/piggybank.jar;
+REGISTER /opt/pig-0.11.1/contrib/piggybank/java/piggybank.jar;
 
-flights = LOAD '/user/hadoop/ITBA/SAMPLE/data/1987-sample.csv'
+
+%default SELECTED_AIRPORT 'SFO';
+
+flights = LOAD '/user/hadoop/ITBA/INPUT/SAMPLE/data/1987-sample.csv'
           USING org.apache.pig.piggybank.storage.CSVLoader() 
           AS (Year:chararray, Month:chararray, DayofMonth:chararray, DayOfWeek:chararray, 
               DepTime:chararray, CRSDepTime:chararray, ArrTime:chararray, CRSArrTime:chararray,
@@ -10,7 +13,7 @@ flights = LOAD '/user/hadoop/ITBA/SAMPLE/data/1987-sample.csv'
               CancellationCode:chararray, Diverted:int, CarrierDelay:chararray, WeatherDelay:chararray,
               NASDelay:chararray, SecurityDelay:chararray, LateAircraftDelay:chararray);
 
-airports = LOAD '/user/hadoop/ITBA/TP1/INPUT/SAMPLE/ref/airports.csv' 
+airports = LOAD '/user/hadoop/ITBA/INPUT/SAMPLE/ref/airports.csv' 
            USING org.apache.pig.piggybank.storage.CSVLoader() 
            AS (id:chararray, airport:chararray);
 /* We want for each day the amount of delayed planes, the amount of cancelled, the amount of diverted and the amount of diverted by weather.
@@ -21,11 +24,13 @@ simple_flights = FOREACH flights
                             CONCAT('/',
                             CONCAT((chararray)Month,
                             CONCAT('/', (chararray)DayofMonth)))) AS day:chararray, /* Fecha */
-                            (DepDelay > 0 ? 1:0) as delayed:long,
-                            DepDelay,
-                            Cancelled,
-                            Diverted,
-                            (CancellationCode == 'B' ? 1:0) AS weather_cancellation:long;
+                            (origin == '$SELECTED_AIRPORT' or '$SELECTED_AIRPORT' == '' ? (DepDelay > 0 ? 1:0) : 0) as delayed:long,
+                            (origin == '$SELECTED_AIRPORT' or '$SELECTED_AIRPORT' == '' ? (DepDelay > 0 ? DepDelay : 0) : 0) as DepDelay,
+                            (origin == '$SELECTED_AIRPORT' or '$SELECTED_AIRPORT' == '' ? Cancelled : 0) as Cancelled,
+                            (origin == '$SELECTED_AIRPORT' or '$SELECTED_AIRPORT' == '' ? Diverted : 0) as Diverted,
+                            (origin == '$SELECTED_AIRPORT' or '$SELECTED_AIRPORT' == '' ? (CancellationCode == 'B' ? 1:0) : 0) AS weather_cancellation:long;
+
+
 
 grouped = GROUP simple_flights BY (day);
 
@@ -37,4 +42,6 @@ summed = FOREACH grouped
                   SUM(simple_flights.Diverted)             AS totaldiverted:long, 
                   SUM(simple_flights.weather_cancellation) AS total_weather_cancellation:long; 
 
-STORE summed into 'top5/pig_output' USING PigStorage (';');
+DUMP summed;
+
+/* STORE summed into 'top5/pig_output' USING PigStorage (';'); */
