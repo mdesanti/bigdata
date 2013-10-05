@@ -50,7 +50,6 @@ stored as textfile;
 
 LOAD DATA LOCAL INPATH '/user/hadoop/ITBA/TP1/INPUT/SAMPLE/ref/airports.csv' into table airports;
 
-mid_table: SELECT originIATA, destIATA, COUNT(year) as total FROM flights GROUP BY originIATA, destIATA;
 
 SELECT tmp_table.origin, tmp_table.dest, tmp_table.total
 FROM
