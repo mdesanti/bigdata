@@ -1,8 +1,12 @@
-REGISTER /opt/pig-0.11.1/contrib/piggybank/java/piggybank.jar;
+%default PIGGYBANK_PATH './pig-0.11.1/contrib/piggybank/java/piggybank.jar'
+%default FLIGHTS_PATH '/user/hadoop/ITBA/TP1/INPUT/SAMPLE/data/'
+%default AIRPORTS_HBASE_PATH 'hbase://itba_tp1_airports'
+
+REGISTER '$PIGGYBANK_PATH';
 
 %default SELECTED_AIRPORT 'SFO';
 
-flights = LOAD '/user/hadoop/ITBA/TP1/INPUT/SAMPLE/data/' 
+flights = LOAD '$FLIGHTS_PATH' 
           USING org.apache.pig.piggybank.storage.CSVLoader()
           AS (Year:chararray, Month:chararray, DayofMonth:chararray, DayOfWeek:chararray,
               DepTime:chararray, CRSDepTime:chararray, ArrTime:chararray, CRSArrTime:chararray,
@@ -12,7 +16,7 @@ flights = LOAD '/user/hadoop/ITBA/TP1/INPUT/SAMPLE/data/'
               CancellationCode:chararray, Diverted:int, CarrierDelay:chararray, WeatherDelay:chararray,
               NASDelay:chararray, SecurityDelay:chararray, LateAircraftDelay:chararray);
 
-airports = LOAD 'hbase://itba_tp1_airports'
+airports = LOAD '$AIRPORTS_HBASE_PATH'
            USING org.apache.pig.backend.hadoop.hbase.HBaseStorage('info:airport', '-loadKey true')
            AS (id:chararray, airport:chararray);
 /* We want for each day the amount of delayed planes, the amount of cancelled, the amount of diverted and the amount of diverted by weather.
