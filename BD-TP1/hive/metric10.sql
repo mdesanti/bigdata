@@ -48,7 +48,7 @@ create table airports (
 row format delimited fields terminated by ','
 stored as textfile;
 
-LOAD DATA LOCAL INPATH '/user/hadoop/ITBA/TP1/INPUT/SAMPLE/ref/airports.csv' into table airports;
+LOAD DATA INPATH '/user/hadoop/ITBA/TP1/INPUT/SAMPLE/ref/airports.csv' into table airports;
 
 SELECT tmp_table.my_date, COUNT(*), SUM(cancelled) 
 FROM 
