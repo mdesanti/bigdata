@@ -4,8 +4,8 @@ REGISTER /opt/pig-0.11.1/contrib/piggybank/java/piggybank.jar;
 %default SELECTED_AIRPORT 'SFO';
 
 flights = LOAD '/user/hadoop/ITBA/INPUT/SAMPLE/data/1987-sample.csv'
-          USING org.apache.pig.piggybank.storage.CSVLoader() 
-          AS (Year:chararray, Month:chararray, DayofMonth:chararray, DayOfWeek:chararray, 
+          USING org.apache.pig.piggybank.storage.CSVLoader()
+          AS (Year:chararray, Month:chararray, DayofMonth:chararray, DayOfWeek:chararray,
               DepTime:chararray, CRSDepTime:chararray, ArrTime:chararray, CRSArrTime:chararray,
               UniqueCarrier:chararray, FlightNum:chararray, TailNum:chararray,  ActualElapsedTime:chararray,
               CRSElapsedTime:chararray, AirTime:chararray, ArrDelay:chararray, DepDelay:long, origin:chararray,
@@ -13,8 +13,8 @@ flights = LOAD '/user/hadoop/ITBA/INPUT/SAMPLE/data/1987-sample.csv'
               CancellationCode:chararray, Diverted:int, CarrierDelay:chararray, WeatherDelay:chararray,
               NASDelay:chararray, SecurityDelay:chararray, LateAircraftDelay:chararray);
 
-airports = LOAD '/user/hadoop/ITBA/INPUT/SAMPLE/ref/airports.csv' 
-           USING org.apache.pig.piggybank.storage.CSVLoader() 
+airports = LOAD 'hbase://itba_tp1_airports'
+           USING org.apache.pig.backend.hadoop.hbase.HBaseStorage('info:airport', '-loadKey true')
            AS (id:chararray, airport:chararray);
 /* We want for each day the amount of delayed planes, the amount of cancelled, the amount of diverted and the amount of diverted by weather.
    When we generate simple_flights, we map the departure delay to a 1 or a 0 to make the addition easier (same with cancellation code)
@@ -36,11 +36,11 @@ grouped = GROUP simple_flights BY (day);
 
 summed = FOREACH grouped
          GENERATE group,
-                  SUM(simple_flights.delayed)              AS totaldelayed:long, 
+                  SUM(simple_flights.delayed)              AS totaldelayed:long,
                   SUM(simple_flights.DepDelay)             AS totaldelay:long,
-                  SUM(simple_flights.Cancelled)            AS totalcancelled:long, 
-                  SUM(simple_flights.Diverted)             AS totaldiverted:long, 
-                  SUM(simple_flights.weather_cancellation) AS total_weather_cancellation:long; 
+                  SUM(simple_flights.Cancelled)            AS totalcancelled:long,
+                  SUM(simple_flights.Diverted)             AS totaldiverted:long,
+                  SUM(simple_flights.weather_cancellation) AS total_weather_cancellation:long;
 
 DUMP summed;
 

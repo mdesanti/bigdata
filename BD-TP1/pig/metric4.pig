@@ -19,27 +19,21 @@ joined = JOIN flights BY origin, airports BY id;
 
 simple_flights = FOREACH joined GENERATE ToDate( CONCAT(CONCAT((chararray)Year, '-'),
                                                   CONCAT(CONCAT((chararray)Month, '-'), (chararray)DayofMonth)), 'yyyy-M-d') as date:datetime,
-                                                  airport, (DepDelay > 0 ? 1:0) as delayed:long;
+                                                  airport, (CancellationCode == 'B' ? 1:0) as weather_cancel:int;
 
 after_date = FOREACH simple_flights GENERATE ((date >= ToDate('2005-08-23', 'yyyy-MM-dd') and date <= ToDate('2005-08-30', 'yyyy-MM-dd'))? 'KATRINA' :
                                               ((date >= ToDate('1998-10-22', 'yyyy-MM-dd') and date <= ToDate('1998-11-05', 'yyyy-MM-dd'))? 'MITCH':
                                               (date >= ToDate('2005-10-15', 'yyyy-MM-dd') and date <= ToDate('2005-10-26', 'yyyy-MM-dd') ? 'WILMA' : 'NONE'))) as hurricane:chararray,
-date, airport, delayed, ((date >= ToDate('2005-08-23', 'yyyy-MM-dd') and date <= ToDate('2005-08-30', 'yyyy-MM-dd'))? 8.0 :
-                                              ((date >= ToDate('1998-10-22', 'yyyy-MM-dd') and date <= ToDate('1998-11-05', 'yyyy-MM-dd'))? 15.0:
-                                              (date >= ToDate('2005-10-15', 'yyyy-MM-dd') and date <= ToDate('2005-10-26', 'yyyy-MM-dd') ? 12.0 : 1.0))) as days:double;
+date, airport, weather_cancel;
 
-after_date = FILTER after_date BY hurricane == 'KATRINA' OR hurricane == 'MITCH' OR hurricane == 'WILMA';
+grouped = GROUP after_date BY (hurricane, date);
 
-grouped = GROUP after_date BY (hurricane, airport);
+summed = FOREACH grouped GENERATE group, SUM(after_date.weather_cancel) AS cancel:float;
 
-summed = FOREACH grouped GENERATE group, SUM(after_date.delayed)/MAX(after_date.days) AS avgdelay:float;
-
-flat = FOREACH summed GENERATE group.hurricane, group.airport, flatten(avgdelay);
-
-by_hurricane = GROUP flat BY hurricane;
-
-results = FOREACH by_hurricane {
-  sorted = ORDER flat BY avgdelay desc;
-  top_5 = LIMIT sorted 5;
+results = FOREACH summed {
+  sorted = ORDER cancel BY cancel desc;
+  top_5 = LIMIT sorted 1;
   generate group, flatten(top_5);
 };
+
+%default SELECTED_AIRPORT 'SFO';
