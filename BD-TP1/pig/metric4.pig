@@ -1,7 +1,11 @@
-REGISTER ./pig-0.11.1/contrib/piggybank/java/piggybank.jar;
+%default PIGGYBANK_PATH '/home/hadoop/pig-0.11.1/contrib/piggybank/java/piggybank.jar'
+%default FLIGHTS_PATH '/user/hadoop/ITBA/TP1/INPUT/SAMPLE/data/'
+%default AIRPORTS_HBASE_PATH 'hbase://itba_tp1_airports'
+%default OUTPUT_PATH 'metric4/output'
 
+REGISTER '$PIGGYBANK_PATH';
 
-flights = LOAD '/user/hadoop/ITBA/TP1/INPUT/SAMPLE/data/'
+flights = LOAD '$FLIGHTS_PATH' 
           USING org.apache.pig.piggybank.storage.CSVLoader()
           AS (Year:chararray, Month:chararray, DayofMonth:chararray, DayOfWeek:chararray,
               DepTime:chararray, CRSDepTime:chararray, ArrTime:chararray, CRSArrTime:chararray,
@@ -11,7 +15,7 @@ flights = LOAD '/user/hadoop/ITBA/TP1/INPUT/SAMPLE/data/'
               CancellationCode:chararray, Diverted:int, CarrierDelay:chararray, WeatherDelay:chararray,
               NASDelay:chararray, SecurityDelay:chararray, LateAircraftDelay:chararray);
 
-airports = LOAD 'hbase://itba_tp1_airports'
+airports = LOAD '$AIRPORTS_HBASE_PATH'
            USING org.apache.pig.backend.hadoop.hbase.HBaseStorage('info:airport', '-loadKey true')
            AS (id:chararray, airport:chararray);
 
@@ -36,4 +40,4 @@ results = FOREACH summed {
   generate group, flatten(top_5);
 };
 
-%default SELECTED_AIRPORT 'SFO';
+STORE results into '$OUTPUT_PATH' USING PigStorage (';');

@@ -1,6 +1,11 @@
-REGISTER ./pig-0.11.1/contrib/piggybank/java/piggybank.jar;
+%default PIGGYBANK_PATH '/home/hadoop/pig-0.11.1/contrib/piggybank/java/piggybank.jar'
+%default FLIGHTS_PATH '/user/hadoop/ITBA/TP1/INPUT/SAMPLE/data/'
+%default AIRPORTS_HBASE_PATH 'hbase://itba_tp1_airports'
+%default OUTPUT_PATH 'metric1/output'
 
-flights = LOAD '/user/hadoop/ITBA/TP1/INPUT/SAMPLE/data/' 
+REGISTER '$PIGGYBANK_PATH';
+
+flights = LOAD '$FLIGHTS_PATH' 
           USING org.apache.pig.piggybank.storage.CSVLoader() 
           AS (Year:chararray, Month:chararray, DayofMonth:chararray, DayOfWeek:chararray, 
               DepTime:chararray, CRSDepTime:chararray, ArrTime:chararray, CRSArrTime:chararray, 
@@ -10,7 +15,7 @@ flights = LOAD '/user/hadoop/ITBA/TP1/INPUT/SAMPLE/data/'
               CancellationCode:chararray, Diverted:chararray, CarrierDelay:chararray, WeatherDelay:chararray,
               NASDelay:chararray, SecurityDelay:chararray, LateAircraftDelay:chararray);
 
-airports = LOAD 'hbase://itba_tp1_airports'
+airports = LOAD '$AIRPORTS_HBASE_PATH'
            USING org.apache.pig.backend.hadoop.hbase.HBaseStorage('info:airport', '-loadKey true')
            AS (id:chararray, airport:chararray);
 
@@ -32,4 +37,6 @@ results = FOREACH by_year {
 
 simple_results = FOREACH results GENERATE Year, airport, totaldelay;
 
-STORE simple_results into 'top5/pig_output' USING PigStorage (';');
+STORE simple_results into '$OUTPUT_PATH' USING PigStorage (';');
+
+ 
