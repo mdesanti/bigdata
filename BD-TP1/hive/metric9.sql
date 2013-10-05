@@ -52,4 +52,12 @@ LOAD DATA LOCAL INPATH '/user/hadoop/ITBA/TP1/INPUT/SAMPLE/ref/airports.csv' int
 
 mid_table: SELECT originIATA, destIATA, COUNT(year) as total FROM flights GROUP BY originIATA, destIATA;
 
-SELECT tmp_table.originIATA, tmp_table.destIATA, tmp_table.total FROM (SELECT originIATA, destIATA, COUNT(year) as total FROM flights GROUP BY originIATA, destIATA) tmp_table ORDER BY tmp_table.total desc LIMIT 5;
+SELECT tmp_table.origin, tmp_table.dest, tmp_table.total
+FROM
+              (SELECT a1.name as origin, a2.name as dest, COUNT(year) AS total
+               FROM flights
+               JOIN airports a1 ON regexp_replace(a1.IATA, '\"', '') = flights.originIATA
+               JOIN airports a2 ON regexp_replace(a2.IATA, '\"', '') = flights.destIATA
+               GROUP BY a1.name, a2.name) tmp_table
+ORDER BY tmp_table.total desc
+LIMIT 5;

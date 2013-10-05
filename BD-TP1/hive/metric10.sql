@@ -59,9 +59,3 @@ FROM
                GROUP BY a1.name, a2.name) tmp_table
 ORDER BY tmp_table.total desc
 LIMIT 5;
-
-
-SELECT name, destIATA, COUNT(year) AS total
-               FROM flights
-               JOIN airports ON (regexp_replace(airports.IATA, '\"', '') = flights.originIATA)
-               GROUP BY name, destIATA;
