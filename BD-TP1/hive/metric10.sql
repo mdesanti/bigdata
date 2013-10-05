@@ -50,12 +50,8 @@ stored as textfile;
 
 LOAD DATA LOCAL INPATH '/user/hadoop/ITBA/TP1/INPUT/SAMPLE/ref/airports.csv' into table airports;
 
-SELECT tmp_table.origin, tmp_table.dest, tmp_table.total
+SELECT tmp_table.date
 FROM
-              (SELECT a1.name as origin, a2.name as dest, COUNT(year) AS total
+              (SELECT CONCAT(dayOfMonth, '/', month, '/', year), cancelled
                FROM flights
-               JOIN airports a1 ON regexp_replace(a1.IATA, '\"', '') = flights.originIATA
-               JOIN airports a2 ON regexp_replace(a2.IATA, '\"', '') = flights.destIATA
-               GROUP BY a1.name, a2.name) tmp_table
-ORDER BY tmp_table.total desc
-LIMIT 5;
+               WHERE year = 2001 and month = 9) tmp_table;
