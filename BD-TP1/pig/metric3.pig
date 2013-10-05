@@ -24,7 +24,7 @@ simple_flights = FOREACH joined GENERATE ToDate( CONCAT(CONCAT((chararray)Year, 
 after_date = FOREACH simple_flights GENERATE ((date >= ToDate('2005-08-23', 'yyyy-MM-dd') and date <= ToDate('2005-08-30', 'yyyy-MM-dd'))? 'KATRINA' :
                                               ((date >= ToDate('1998-10-22', 'yyyy-MM-dd') and date <= ToDate('1998-11-05', 'yyyy-MM-dd'))? 'MITCH':
                                               (date >= ToDate('2005-10-15', 'yyyy-MM-dd') and date <= ToDate('2005-10-26', 'yyyy-MM-dd') ? 'WILMA' : 'NONE'))) as hurricane:chararray,
-date, airport, delayed, ((date >= ToDate('2005-08-23', 'yyyy-MM-dd') and date <= ToDate('2005-08-30', 'yyyy-MM-dd'))? 8.0 :
+                                              date, airport, delayed, ((date >= ToDate('2005-08-23', 'yyyy-MM-dd') and date <= ToDate('2005-08-30', 'yyyy-MM-dd'))? 8.0 :
                                               ((date >= ToDate('1998-10-22', 'yyyy-MM-dd') and date <= ToDate('1998-11-05', 'yyyy-MM-dd'))? 15.0:
                                               (date >= ToDate('2005-10-15', 'yyyy-MM-dd') and date <= ToDate('2005-10-26', 'yyyy-MM-dd') ? 12.0 : 1.0))) as days:double;
 
