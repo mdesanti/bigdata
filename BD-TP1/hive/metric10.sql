@@ -54,14 +54,14 @@ SELECT tmp_table.origin, tmp_table.dest, tmp_table.total
 FROM
               (SELECT a1.name as origin, a2.name as dest, COUNT(year) AS total
                FROM flights
-               JOIN airports a1 ON a1.IATA = flights.originIATA
-               JOIN airports a2 ON a2.IATA = flights.destIATA
+               JOIN airports a1 ON regexp_replace(a1.IATA, '\"', '') = flights.originIATA
+               JOIN airports a2 ON regexp_replace(a2.IATA, '\"', '') = flights.destIATA
                GROUP BY a1.name, a2.name) tmp_table
 ORDER BY tmp_table.total desc
 LIMIT 5;
 
 
 SELECT name, destIATA, COUNT(year) AS total
-               FROM flights JOIN airports
-               WHERE IATA = originIATA
+               FROM flights
+               JOIN airports ON (regexp_replace(airports.IATA, '\"', '') = flights.originIATA)
                GROUP BY name, destIATA;
