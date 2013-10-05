@@ -1,6 +1,7 @@
 %default PIGGYBANK_PATH './pig-0.11.1/contrib/piggybank/java/piggybank.jar'
 %default FLIGHTS_PATH '/user/hadoop/ITBA/TP1/INPUT/SAMPLE/data/'
 %default AIRPORTS_HBASE_PATH 'hbase://itba_tp1_airports'
+%default OUTPUT_PATH 'metric2/output'
 
 REGISTER '$PIGGYBANK_PATH';
 
@@ -45,4 +46,4 @@ summed = FOREACH grouped
                   SUM(simple_flights.Diverted)             AS totaldiverted:long,
                   SUM(simple_flights.weather_cancellation) AS total_weather_cancellation:long;
 
-STORE summed into 'top5/pig_output' USING PigStorage (';');
+STORE summed into '$OUTPUT_PATH' USING PigStorage (';');

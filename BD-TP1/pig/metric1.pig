@@ -1,6 +1,7 @@
 %default PIGGYBANK_PATH './pig-0.11.1/contrib/piggybank/java/piggybank.jar'
 %default FLIGHTS_PATH '/user/hadoop/ITBA/TP1/INPUT/SAMPLE/data/'
 %default AIRPORTS_HBASE_PATH 'hbase://itba_tp1_airports'
+%default OUTPUT_PATH 'metric1/output'
 
 REGISTER '$PIGGYBANK_PATH';
 
@@ -36,4 +37,6 @@ results = FOREACH by_year {
 
 simple_results = FOREACH results GENERATE Year, airport, totaldelay;
 
-STORE simple_results into 'top5/pig_output' USING PigStorage (';');
+STORE simple_results into '$OUTPUT_PATH' USING PigStorage (';');
+
+ 

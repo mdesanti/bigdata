@@ -1,6 +1,7 @@
 %default PIGGYBANK_PATH './pig-0.11.1/contrib/piggybank/java/piggybank.jar'
 %default FLIGHTS_PATH '/user/hadoop/ITBA/TP1/INPUT/SAMPLE/data/'
 %default AIRPORTS_HBASE_PATH 'hbase://itba_tp1_airports'
+%default OUTPUT_PATH 'metric3/output'
 
 REGISTER '$PIGGYBANK_PATH';
 
@@ -46,3 +47,6 @@ results = FOREACH by_hurricane {
   top_5 = LIMIT sorted 5;
   generate group, flatten(top_5);
 };
+
+
+STORE results into '$OUTPUT_PATH' USING PigStorage (';');
