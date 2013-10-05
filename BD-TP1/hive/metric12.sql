@@ -45,3 +45,5 @@ GROUP BY tmp_table.my_date;
 
 
 
+
+

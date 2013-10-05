@@ -41,3 +41,5 @@ FROM flights
 WHERE year = 2001 and month = 9 and dayOfMonth = 11
 GROUP BY originIATA;
 
+
+
