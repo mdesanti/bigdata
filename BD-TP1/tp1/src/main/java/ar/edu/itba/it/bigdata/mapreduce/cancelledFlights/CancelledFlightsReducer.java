@@ -18,7 +18,6 @@ public class CancelledFlightsReducer extends
 			count += value.get();
 		}
 
-		System.out.println("Writing " + key + " -> " + count);
 		context.write(key, new IntWritable(count));
 	}
 }

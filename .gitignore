@@ -13,3 +13,4 @@ data/*
 .idea
 *.log
 mnt/
+id_dsa
