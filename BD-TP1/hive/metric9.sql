@@ -59,4 +59,4 @@ FROM
                JOIN airports a2 ON regexp_replace(a2.IATA, '\"', '') = flights.destIATA
                GROUP BY a1.name, a2.name) tmp_table
 ORDER BY tmp_table.total desc
-LIMIT 5;
+LIMIT 10;
