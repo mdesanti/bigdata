@@ -139,7 +139,7 @@ public class CLIParser {
     }
 
     private static void printHelp(Options opts) {
-        new HelpFormatter().printHelp("hadoop jar bd-tp1.jar", opts);
+        new HelpFormatter().printHelp("hadoop jar bd-tp1-jar-with-dependencies.jar", opts);
     }
 
     public static AppConfig getAppConfig(String[] args) throws ParseException, FileNotFoundException {
