@@ -54,18 +54,6 @@ public class FlownMilesTest {
 	}
 
 	@Test
-	public void testNADistance() {
-		mapDriver
-				.withInput(
-						new LongWritable(),
-						new Text(
-								"1987,10,9,5,1606,1505,1708,1608,PS,1453,NA,62,63,NA,60,61,BUR,OAK,NA,NA,NA,1,NA,1,NA,NA,NA,NA,NA"));
-		mapDriver.withOutput(new Text("Pacific Southwest Airlines-1987"),
-				new IntWritable(325));
-		mapDriver.runTest();
-	}
-
-	@Test
 	public void testReducer() {
 		List<IntWritable> values = new ArrayList<IntWritable>();
 		values.add(new IntWritable(300));
