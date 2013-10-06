@@ -5,7 +5,7 @@
 
 REGISTER '$PIGGYBANK_PATH';
 
-%default SELECTED_AIRPORT 'SFO';
+%default SELECTED_AIRPORT '';
 
 flights = LOAD '$FLIGHTS_PATH' 
           USING org.apache.pig.piggybank.storage.CSVLoader()
