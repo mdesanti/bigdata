@@ -53,23 +53,24 @@ LOAD DATA INPATH '/user/hadoop/ITBA/TP1/INPUT/SAMPLE/ref/airports.csv' into tabl
 add jar Rank.jar;
 create temporary function rank as 'udf.RankYear';
 
+create table tmp_table (year int, origin string, dest string, total int);
+
+insert overwrite table tmp_table 
+                    SELECT year, originIATA as origin, destIATA as dest, COUNT(*) AS total
+                    FROM flights
+                    GROUP BY year, originIATA, destIATA;
+
 
 SELECT * 
-FROM 
-    ( SELECT *, rank(tmp_table.year) as rank
-      FROM
-          ( SELECT *
-            FROM
-                (SELECT a1.name as origin, a2.name as dest, year, COUNT(year) AS total
-                 FROM flights
-                 JOIN airports a1 ON regexp_replace(a1.IATA, '\"', '') = flights.originIATA
-                 JOIN airports a2 ON regexp_replace(a2.IATA, '\"', '') = flights.destIATA
-                 GROUP BY a1.name, a2.name, year
-                 ) C
-            DISTRIBUTE by C.year
-            SORT BY total
-          ) tmp_table
-    ) A
-WHERE rank < 10
-SORT BY year, rank;
-
+FROM
+(
+   SELECT *, rank(year) as row_number
+   FROM (
+        SELECT year, origin, dest, total
+        FROM tmp_table
+        DISTRIBUTE BY year
+        SORT BY year, total desc
+   ) A
+) B
+WHERE row_number < 5
+ORDER BY year, row_number;
