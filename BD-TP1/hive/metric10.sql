@@ -36,23 +36,10 @@ stored as textfile;
 
 LOAD DATA INPATH '/user/hadoop/ITBA/TP1/INPUT/SAMPLE/data' into table flights;
 
-create table airports (
-  IATA string,
-  name string,
-  city string,
-  state string,
-  country string,
-  latitude double,
-  longintude double
-)
-row format delimited fields terminated by ','
-stored as textfile;
 
-LOAD DATA INPATH '/user/hadoop/ITBA/TP1/INPUT/SAMPLE/ref/airports.csv' into table airports;
-
-SELECT tmp_table.my_date, COUNT(*), SUM(cancelled) 
-FROM 
-        (SELECT CONCAT(year, '-', month, '-', dayOfMonth) as my_date, cancelled 
-         FROM flights 
-         WHERE year = 2001 and month = 9) tmp_table 
+SELECT tmp_table.my_date, COUNT(*), SUM(cancelled)
+FROM
+        (SELECT CONCAT(year, '-', month, '-', dayOfMonth) as my_date, cancelled
+         FROM flights
+         WHERE year = 2001 and month = 9) tmp_table
 GROUP BY tmp_table.my_date;
