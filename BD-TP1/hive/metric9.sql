@@ -34,7 +34,7 @@ create table flights (
 row format delimited fields terminated by ','
 stored as textfile;
 
-LOAD DATA LOCAL INPATH '/user/hadoop/ITBA/TP1/INPUT/SAMPLE/data' into table flights;
+LOAD DATA INPATH '/user/hadoop/ITBA/TP1/INPUT/SAMPLE/data' into table flights;
 
 create table airports (
   IATA string,
@@ -50,13 +50,26 @@ stored as textfile;
 
 LOAD DATA INPATH '/user/hadoop/ITBA/TP1/INPUT/SAMPLE/ref/airports.csv' into table airports;
 
+add jar Rank.jar;
+create temporary function rank as 'udf.RankYear';
 
-SELECT tmp_table.origin, tmp_table.dest, tmp_table.total
-FROM
-              (SELECT a1.name as origin, a2.name as dest, COUNT(year) AS total
-               FROM flights
-               JOIN airports a1 ON regexp_replace(a1.IATA, '\"', '') = flights.originIATA
-               JOIN airports a2 ON regexp_replace(a2.IATA, '\"', '') = flights.destIATA
-               GROUP BY a1.name, a2.name) tmp_table
-ORDER BY tmp_table.total desc
-LIMIT 10;
+
+SELECT * 
+FROM 
+    ( SELECT *, rank(tmp_table.year) as rank
+      FROM
+          ( SELECT *
+            FROM
+                (SELECT a1.name as origin, a2.name as dest, year, COUNT(year) AS total
+                 FROM flights
+                 JOIN airports a1 ON regexp_replace(a1.IATA, '\"', '') = flights.originIATA
+                 JOIN airports a2 ON regexp_replace(a2.IATA, '\"', '') = flights.destIATA
+                 GROUP BY a1.name, a2.name, year
+                 ) C
+            DISTRIBUTE by C.year
+            SORT BY total
+          ) tmp_table
+    ) A
+WHERE rank < 10
+SORT BY year, rank;
+

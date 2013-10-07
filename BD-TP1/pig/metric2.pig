@@ -23,7 +23,10 @@ airports = LOAD '$AIRPORTS_HBASE_PATH'
 /* We want for each day the amount of delayed planes, the amount of cancelled, the amount of diverted and the amount of diverted by weather.
    When we generate simple_flights, we map the departure delay to a 1 or a 0 to make the addition easier (same with cancellation code)
 */
-simple_flights = FOREACH flights
+
+filtered = FILTER flights BY year == 2005;
+
+simple_flights = FOREACH filtered
                  GENERATE   CONCAT((chararray)Year,
                             CONCAT('/',
                             CONCAT((chararray)Month,
