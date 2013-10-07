@@ -1,9 +1,11 @@
 %default PIGGYBANK_PATH '/home/hadoop/pig-0.11.1/contrib/piggybank/java/piggybank.jar'
 %default FLIGHTS_PATH '/user/hadoop/ITBA/TP1/INPUT/SAMPLE/data/'
 %default AIRPORTS_HBASE_PATH 'hbase://itba_tp1_airports'
+%default PROTOBUF_PATH '/home/hadoop/hbase-0.94.6.1/lib/protobuf-java-2.4.0a.jar'
 %default OUTPUT_PATH 'metric4/output'
 
 REGISTER '$PIGGYBANK_PATH';
+REGISTER '$PROTOBUF_PATH';
 
 flights = LOAD '$FLIGHTS_PATH' 
           USING org.apache.pig.piggybank.storage.CSVLoader()
