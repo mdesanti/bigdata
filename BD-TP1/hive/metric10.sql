@@ -34,7 +34,7 @@ create table flights (
 row format delimited fields terminated by ','
 stored as textfile;
 
-LOAD DATA LOCAL INPATH '/user/hadoop/ITBA/TP1/INPUT/SAMPLE/data' into table flights;
+LOAD DATA INPATH '/user/hadoop/ITBA/TP1/INPUT/SAMPLE/data' into table flights;
 
 create table airports (
   IATA string,
