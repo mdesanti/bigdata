@@ -2,7 +2,7 @@ set hiveconf:FLIGHT_DATA='/user/hadoop/ITBA/TP1/INPUT/SAMPLE/data';
 
 DROP TABLE IF EXISTS flights;
 DROP TABLE IF EXISTS airports;
-create table flights (
+create external table flights (
   year int,
   month int,
   dayOfMonth int,
@@ -34,9 +34,8 @@ create table flights (
   LateAircraftDelay int
 )
 row format delimited fields terminated by ','
-stored as textfile;
-
-LOAD DATA INPATH ${hiveconf:FLIGHT_DATA} into table flights;
+stored as textfile
+location ${hiveconf:FLIGHT_DATA};
 
 create external table metric11 (origin string, last_dep int)  row format delimited  fields terminated by ' '
  lines terminated by '\n'
