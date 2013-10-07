@@ -73,4 +73,4 @@ FROM
    ) A
 ) B
 WHERE row_number < 10
-SORT BY year, row_number;
+SORT BY year, row_number ;
