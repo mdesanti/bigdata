@@ -38,8 +38,12 @@ stored as textfile;
 
 LOAD DATA INPATH ${hiveconf:FLIGHT_DATA} into table flights;
 
+create external table metric10 (my_date string, flight_count string, added int)  row format delimited  fields terminated by ' '
+ lines terminated by '\n'
+ stored as textfile location '/user/hadoop/output';
 
-SELECT tmp_table.my_date, COUNT(*), SUM(cancelled)
+
+insert overwrite table metric10 SELECT tmp_table.my_date, COUNT(*), SUM(cancelled)
 FROM
         (SELECT CONCAT(year, '-', month, '-', dayOfMonth) as my_date, cancelled
          FROM flights

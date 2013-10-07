@@ -38,7 +38,11 @@ stored as textfile;
 
 LOAD DATA INPATH ${hiveconf:FLIGHT_DATA} into table flights;
 
-SELECT tmp_table.my_date, AVG(depDelay)
+create external table metric12 (my_date string, avg_delay double)  row format delimited  fields terminated by ' '
+ lines terminated by '\n'
+ stored as textfile location '/user/hadoop/output';
+
+insert overwrite table metric12 SELECT tmp_table.my_date, AVG(depDelay)
 FROM
         (SELECT CONCAT(year, '-', month, '-', dayOfMonth) as my_date, depDelay
          FROM flights

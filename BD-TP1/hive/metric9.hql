@@ -4,6 +4,7 @@ set hiveconf:AIRPORTS_DATA='/user/hadoop/ITBA/TP1/INPUT/SAMPLE/ref/airports.csv'
 DROP TABLE IF EXISTS flights;
 DROP TABLE IF EXISTS tmp_table;
 DROP TABLE IF EXISTS airports;
+DROP TABLE IF EXISTS metric9;
 create table flights (
   year int,
   month int,
@@ -65,7 +66,13 @@ insert overwrite table tmp_table
                     GROUP BY year, originIATA, destIATA;
 
 
-SELECT *
+
+create external table metric9 (year int, origin string, dest string, total int, rank int)  row format delimited  fields terminated by ' '
+ lines terminated by '\n'
+ stored as textfile location '/user/hadoop/output';
+
+
+insert overwrite table metric9 SELECT *
 FROM
 (
    SELECT *, rank(year) as row_number

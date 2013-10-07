@@ -38,7 +38,11 @@ stored as textfile;
 
 LOAD DATA INPATH ${hiveconf:FLIGHT_DATA} into table flights;
 
-SELECT originIATA, MAX(cast(depTime as int))
+create external table metric11 (origin string, last_dep int)  row format delimited  fields terminated by ' '
+ lines terminated by '\n'
+ stored as textfile location '/user/hadoop/output';
+
+insert overwrite table metric11 SELECT originIATA, MAX(cast(depTime as int))
 FROM flights
 WHERE year = 2001 and month = 9 and dayOfMonth = 11
 GROUP BY originIATA;
