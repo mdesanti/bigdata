@@ -72,5 +72,5 @@ FROM
         SORT BY year, total desc
    ) A
 ) B
-WHERE row_number < 5
-ORDER BY year, row_number;
+WHERE row_number < 10
+SORT BY year, row_number;
