@@ -40,7 +40,7 @@ LOAD DATA INPATH ${hiveconf:FLIGHT_DATA} into table flights;
 
 create external table metric11 (origin string, last_dep int)  row format delimited  fields terminated by ' '
  lines terminated by '\n'
- stored as textfile location '/user/hadoop/output';
+ stored as textfile location '/user/hadoop/output/metric11';
 
 insert overwrite table metric11 SELECT originIATA, MAX(cast(depTime as int))
 FROM flights

@@ -40,7 +40,7 @@ LOAD DATA INPATH ${hiveconf:FLIGHT_DATA} into table flights;
 
 create external table metric10 (my_date string, flight_count string, added int)  row format delimited  fields terminated by ' '
  lines terminated by '\n'
- stored as textfile location '/user/hadoop/output';
+ stored as textfile location '/user/hadoop/output/metric10';
 
 
 insert overwrite table metric10 SELECT tmp_table.my_date, COUNT(*), SUM(cancelled)

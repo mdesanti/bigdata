@@ -69,7 +69,7 @@ insert overwrite table tmp_table
 
 create external table metric9 (year int, origin string, dest string, total int, rank int)  row format delimited  fields terminated by ' '
  lines terminated by '\n'
- stored as textfile location '/user/hadoop/output';
+ stored as textfile location '/user/hadoop/output/metric9';
 
 
 insert overwrite table metric9 SELECT *
