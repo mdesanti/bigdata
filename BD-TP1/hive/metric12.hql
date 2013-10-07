@@ -1,3 +1,5 @@
+set hiveconf:FLIGHT_DATA='/user/hadoop/ITBA/TP1/INPUT/SAMPLE/data';
+
 DROP TABLE IF EXISTS flights;
 DROP TABLE IF EXISTS airports;
 create table flights (
@@ -34,12 +36,16 @@ create table flights (
 row format delimited fields terminated by ','
 stored as textfile;
 
-LOAD DATA INPATH '/user/hadoop/ITBA/TP1/INPUT/SAMPLE/data' into table flights;
+LOAD DATA INPATH ${hiveconf:FLIGHT_DATA} into table flights;
 
-SELECT originIATA, MAX(cast(depTime as int))
-FROM flights
-WHERE year = 2001 and month = 9 and dayOfMonth = 11
-GROUP BY originIATA;
+SELECT tmp_table.my_date, AVG(depDelay)
+FROM
+        (SELECT CONCAT(year, '-', month, '-', dayOfMonth) as my_date, depDelay
+         FROM flights
+         WHERE year = 2001) tmp_table
+GROUP BY tmp_table.my_date;
+
+
 
 
 

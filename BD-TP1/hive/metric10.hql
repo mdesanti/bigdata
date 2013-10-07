@@ -1,3 +1,5 @@
+set hiveconf:FLIGHT_DATA='/user/hadoop/ITBA/TP1/INPUT/SAMPLE/data';
+
 DROP TABLE IF EXISTS flights;
 DROP TABLE IF EXISTS airports;
 create table flights (
@@ -34,7 +36,7 @@ create table flights (
 row format delimited fields terminated by ','
 stored as textfile;
 
-LOAD DATA INPATH '/user/hadoop/ITBA/TP1/INPUT/SAMPLE/data' into table flights;
+LOAD DATA INPATH ${hiveconf:FLIGHT_DATA} into table flights;
 
 
 SELECT tmp_table.my_date, COUNT(*), SUM(cancelled)

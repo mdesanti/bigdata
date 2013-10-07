@@ -1,4 +1,8 @@
+set hiveconf:FLIGHT_DATA='/user/hadoop/ITBA/TP1/INPUT/SAMPLE/data';
+set hiveconf:AIRPORTS_DATA='/user/hadoop/ITBA/TP1/INPUT/SAMPLE/ref/airports.csv';
+
 DROP TABLE IF EXISTS flights;
+DROP TABLE IF EXISTS tmp_table;
 DROP TABLE IF EXISTS airports;
 create table flights (
   year int,
@@ -34,7 +38,7 @@ create table flights (
 row format delimited fields terminated by ','
 stored as textfile;
 
-LOAD DATA INPATH '/user/hadoop/ITBA/TP1/INPUT/SAMPLE/data' into table flights;
+LOAD DATA INPATH ${hiveconf:FLIGHT_DATA} into table flights;
 
 create table airports (
   IATA string,
@@ -48,20 +52,20 @@ create table airports (
 row format delimited fields terminated by ','
 stored as textfile;
 
-LOAD DATA INPATH '/user/hadoop/ITBA/TP1/INPUT/SAMPLE/ref/airports.csv' into table airports;
+LOAD DATA INPATH ${hiveconf:AIRPORTS_DATA} into table airports;
 
 add jar Rank.jar;
 create temporary function rank as 'udf.RankYear';
 
 create table tmp_table (year int, origin string, dest string, total int);
 
-insert overwrite table tmp_table 
+insert overwrite table tmp_table
                     SELECT year, originIATA as origin, destIATA as dest, COUNT(*) AS total
                     FROM flights
                     GROUP BY year, originIATA, destIATA;
 
 
-SELECT * 
+SELECT *
 FROM
 (
    SELECT *, rank(year) as row_number
@@ -72,5 +76,5 @@ FROM
         SORT BY year, total desc
    ) A
 ) B
-WHERE row_number < 10
+WHERE row_number <= 10
 SORT BY year, row_number ;
