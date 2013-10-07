@@ -32,14 +32,10 @@ after_date = FOREACH simple_flights GENERATE ((date >= ToDate('2005-08-23', 'yyy
                                               (date >= ToDate('2005-10-15', 'yyyy-MM-dd') and date <= ToDate('2005-10-26', 'yyyy-MM-dd') ? 'WILMA' : 'NONE'))) as hurricane:chararray,
 date, airport, weather_cancel;
 
-grouped = GROUP after_date BY (hurricane, date);
+filtered = FILTER after_date BY hurricane == 'WILMA' OR hurricane == 'MITCH' OR hurricane == 'KATRINA';
 
-summed = FOREACH grouped GENERATE group, SUM(after_date.weather_cancel) AS cancel:float;
+grouped = GROUP filtered BY (hurricane);
 
-results = FOREACH summed {
-  sorted = ORDER cancel BY cancel desc;
-  top_5 = LIMIT sorted 1;
-  generate group, flatten(top_5);
-};
+summed = FOREACH grouped GENERATE group, SUM(filtered.weather_cancel) AS cancel:float;
 
-STORE results into '$OUTPUT_PATH' USING PigStorage (';');
+STORE summed into '$OUTPUT_PATH' USING PigStorage (';');
