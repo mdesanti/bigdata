@@ -1,6 +1,8 @@
+set hiveconf:FLIGHT_DATA='/user/hadoop/ITBA/TP1/INPUT/SAMPLE/data';
+
 DROP TABLE IF EXISTS flights;
 DROP TABLE IF EXISTS airports;
-create table flights (
+create external table flights (
   year int,
   month int,
   dayOfMonth int,
@@ -32,18 +34,17 @@ create table flights (
   LateAircraftDelay int
 )
 row format delimited fields terminated by ','
-stored as textfile;
+stored as textfile
+location ${hiveconf:FLIGHT_DATA};
 
-LOAD DATA INPATH '/user/hadoop/ITBA/TP1/INPUT/SAMPLE/data' into table flights;
+create external table metric10 (my_date string, flight_count string, added int)  row format delimited  fields terminated by ' '
+ lines terminated by '\n'
+ stored as textfile location '/user/hadoop/output/metric10';
 
-SELECT tmp_table.my_date, AVG(depDelay) 
-FROM 
-        (SELECT CONCAT(year, '-', month, '-', dayOfMonth) as my_date, depDelay 
-         FROM flights 
-         WHERE year = 2001) tmp_table 
+
+insert overwrite table metric10 SELECT tmp_table.my_date, COUNT(*), SUM(cancelled)
+FROM
+        (SELECT CONCAT(year, '-', month, '-', dayOfMonth) as my_date, cancelled
+         FROM flights
+         WHERE year = 2001 and month = 9) tmp_table
 GROUP BY tmp_table.my_date;
-
-
-
-
-

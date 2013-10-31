@@ -1,6 +1,8 @@
+set hiveconf:FLIGHT_DATA='/user/hadoop/ITBA/TP1/INPUT/SAMPLE/data';
+
 DROP TABLE IF EXISTS flights;
 DROP TABLE IF EXISTS airports;
-create table flights (
+create external table flights (
   year int,
   month int,
   dayOfMonth int,
@@ -32,11 +34,14 @@ create table flights (
   LateAircraftDelay int
 )
 row format delimited fields terminated by ','
-stored as textfile;
+stored as textfile
+location ${hiveconf:FLIGHT_DATA};
 
-LOAD DATA INPATH '/user/hadoop/ITBA/TP1/INPUT/SAMPLE/data' into table flights;
+create external table metric11 (origin string, last_dep int)  row format delimited  fields terminated by ' '
+ lines terminated by '\n'
+ stored as textfile location '/user/hadoop/output/metric11';
 
-SELECT originIATA, MAX(cast(depTime as int))
+insert overwrite table metric11 SELECT originIATA, MAX(cast(depTime as int))
 FROM flights
 WHERE year = 2001 and month = 9 and dayOfMonth = 11
 GROUP BY originIATA;
