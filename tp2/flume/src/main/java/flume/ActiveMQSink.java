@@ -38,37 +38,37 @@ public class ActiveMQSink extends AbstractSink implements Configurable {
 
 	public void start() {
 		// Create a ConnectionFactory
-        ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("vm://localhost");
-
-		try {
-			connection = connectionFactory.createConnection();
-			connection.start();
-
-	        // Create a Session
-	        session = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);
-
-	        // Create the destination (Topic or Queue)
-	        Destination destination = session.createTopic(TOPIC_NAME);
-
-	        // Create a MessageProducer from the Session to the Topic or Queue
-	        producer = session.createProducer(destination);
-	        producer.setDeliveryMode(DeliveryMode.PERSISTENT);
-	        
-		} catch (JMSException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//        ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("vm://localhost");
+//
+//		try {
+//			connection = connectionFactory.createConnection();
+//			connection.start();
+//
+//	        // Create a Session
+//	        session = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);
+//
+//	        // Create the destination (Topic or Queue)
+//	        Destination destination = session.createTopic(TOPIC_NAME);
+//
+//	        // Create a MessageProducer from the Session to the Topic or Queue
+//	        producer = session.createProducer(destination);
+//	        producer.setDeliveryMode(DeliveryMode.PERSISTENT);
+//	        
+//		} catch (JMSException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 	}
 
 	public void stop() {
-		// Clean up
-        try {
-			session.close();
-			connection.close();
-		} catch (JMSException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		// Clean up
+//        try {
+//			session.close();
+//			connection.close();
+//		} catch (JMSException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 	}
 
 	public Status process() throws EventDeliveryException {
@@ -83,14 +83,13 @@ public class ActiveMQSink extends AbstractSink implements Configurable {
 			// do
 
 			Event event = ch.take();
+			System.out.println("Something's in the sink! " + event.toString());
 			
 			// Create a messages
-	        String text = "Hello world! From: " + Thread.currentThread().getName() + " : " + this.hashCode();
-	        TextMessage message = session.createTextMessage(text);
+//	        TextMessage message = session.createTextMessage(text);
 
 	        // Tell the producer to send the message
-	        System.out.println("Sent message: "+ message.hashCode() + " : " + Thread.currentThread().getName());
-	        producer.send(message);
+//	        producer.send(message);
 
 			txn.commit();
 			status = Status.READY;
