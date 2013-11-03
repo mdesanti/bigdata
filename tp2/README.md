@@ -13,12 +13,13 @@ In there, there should be the following files and directories:
 3. logs
 4. tweets (file where tweets files are stored)
 5. twitter-client.jar
+6. custom-sink.jar
 
 If you want to run twitter client and then process those files with flume, execute the following:
 
 ```
 java -jar twitter-client.jar
-./apache-flume-1.4.0-SNAPSHOT-bin/bin/flume-ng agent -n a1 -c apache-flume-1.4.0-SNAPSHOT-bin/conf/ -f flume.conf
+./apache-flume-1.4.0-SNAPSHOT-bin/bin/flume-ng agent -n a1 -c apache-flume-1.4.0-SNAPSHOT-bin/conf/ -f flume.conf -C custom-sink.jar
 ```
 
 ## Flume
