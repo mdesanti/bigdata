@@ -2,7 +2,7 @@
 
 First connect to the cluster:
 
-`ssh -i ../id_dsa hadoop@107.20.161.53`
+`ssh -i id_dsa hadoop@107.20.161.53`
 
 Once connected, move to grupo2.
 
