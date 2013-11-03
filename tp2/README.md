@@ -35,3 +35,8 @@ $ tar -zxvf apache-flume-1.4.0-SNAPSHOT-bin.tar.gz
 ```
 ./apache-flume-1.4.0-SNAPSHOT-bin/bin/flume-ng agent -n a1 -c apache-flume-1.4.0-SNAPSHOT-bin/conf/ -f flume.conf
 ```
+
+If you want to debug, set the sink to be logger and add the following line to the previous:
+```
+-Dflume.root.logger=INFO,console
+```
