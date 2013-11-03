@@ -1,5 +1,16 @@
 # TP2
 
+## Compiling and uploading to cluster
+
+To compile and upload the custom sink, storm and other necessary files, execute:
+
+```
+sh compile_and_upload.sh
+```
+
+IMPORTANT: the script assumes that the id_dsa file is in ../../ (out of the repository, for security reasons). Either you
+place it there or you modify the script to update the id_dsa file location.
+
 First connect to the cluster:
 
 `ssh -i id_dsa hadoop@107.20.161.53`
