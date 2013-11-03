@@ -65,7 +65,6 @@ public class TwitterActiveMQSpout extends BaseRichSpout implements ExceptionList
 	        // Create a MessageConsumer from the Session to the Topic or Queue
 	        consumer = session.createConsumer(destination);
 		} catch (JMSException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -89,6 +88,7 @@ public class TwitterActiveMQSpout extends BaseRichSpout implements ExceptionList
 
 	public void nextTuple() {
 		Message message;
+		System.out.println("Next tuple...");
 		try {
 			message = consumer.receive(1000);
 			if (message instanceof TextMessage) {

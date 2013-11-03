@@ -2,6 +2,7 @@
 
 # Package Files #
 *.jar
+!twitter-client.jar
 *.iml
 *.war
 *.ear
