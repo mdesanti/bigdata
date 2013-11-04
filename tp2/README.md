@@ -46,6 +46,8 @@ If you get an error saying somthing like 'connection refused...' then probably n
 
 `storm nimbus`
 
+In addition, nimbus ui might not be activated. If so, `nimbus ui`. This ui can be found [here](http://50.19.65.50:8080/)
+
 ## Flume
 
 1- After you download flume
