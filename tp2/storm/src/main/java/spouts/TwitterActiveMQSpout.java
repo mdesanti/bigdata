@@ -38,12 +38,10 @@ public class TwitterActiveMQSpout extends BaseRichSpout implements ExceptionList
 
 	public TwitterActiveMQSpout() {
 		this(true);
-		connectToQueue();
 	}
 
 	public TwitterActiveMQSpout(boolean isDistributed) {
 		_isDistributed = isDistributed;
-		connectToQueue();
 	}
 
 	private void connectToQueue() {
@@ -73,6 +71,7 @@ public class TwitterActiveMQSpout extends BaseRichSpout implements ExceptionList
 	public void open(Map conf, TopologyContext context,
 			SpoutOutputCollector collector) {
 		_collector = collector;
+		connectToQueue();
 	}
 
 	public void close() {
