@@ -42,6 +42,12 @@ Storm must be run from datanode 4. To do so, copy storm to datanode 4 executing:
 Afterwards, move to datanode 4: `ssh hadoop-2013-datanode-4`. Run the storm with the following command:
 `storm-0.8.2/bin/storm jar grupo2/storm.jar topology.Topology <storm_name>`
 
+If you get an error saying somthing like 'connection refused...' then probably nimbus is not running. To start nimbus:
+
+`storm nimbus`
+
+In addition, nimbus ui might not be activated. If so, `nimbus ui`. This ui can be found [here](http://50.19.65.50:8080/)
+
 ## Flume
 
 1- After you download flume
