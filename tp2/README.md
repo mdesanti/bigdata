@@ -53,6 +53,8 @@ the UI using the following:
 
 `ssh -i id_dsa -L 9000:10.242.58.110:8080 hadoop@107.20.161.53`
 
+./execute_in_some.sh "nohup ~/storm-0.8.2/bin/storm supervisor 2> /dev/null &"
+
 ## Flume
 
 1- After you download flume
