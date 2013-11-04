@@ -15,7 +15,9 @@ First connect to the cluster:
 
 `ssh -i id_dsa hadoop@107.20.161.53`
 
-Once connected, move to grupo2.
+Once connected, move to grupo2 (this folder is not in HDFS!).
+
+`cd grupo2`
 
 In there, there should be the following files and directories:
 
