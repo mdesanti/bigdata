@@ -17,11 +17,10 @@ public class Topology {
 	public static void main(String[] args) throws Exception {
 		TopologyBuilder builder = new TopologyBuilder();
 
-		builder.setSpout("word", new TwitterActiveMQSpout());
-		builder.setBolt("counter", new SystemOutBolt()).shuffleGrouping("word");
+		builder.setSpout("tweets", new TwitterActiveMQSpout(), 3);
+		builder.setBolt("printer", new SystemOutBolt(), 10).shuffleGrouping("tweets");
 
 		Config conf = new Config();
-		conf.setDebug(true);
 
 		if (args != null && args.length > 0) {
 			conf.setNumWorkers(3);
