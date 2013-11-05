@@ -46,7 +46,14 @@ If you get an error saying somthing like 'connection refused...' then probably n
 
 `storm nimbus`
 
-In addition, nimbus ui might not be activated. If so, `nimbus ui`. This ui can be found [here](http://50.19.65.50:8080/)
+In addition, nimbus ui might not be activated. If so, `storm ui`. This ui can be found [here](http://50.19.65.50:8080/)
+
+If you are developing at ITBA, then the proxy is probably blocking your connection to the UI. Make an ssh tunnel to
+the UI using the following:
+
+`ssh -i id_dsa -L 9000:10.242.58.110:8080 hadoop@107.20.161.53`
+
+./execute_in_some.sh "nohup ~/storm-0.8.2/bin/storm supervisor 2> /dev/null &"
 
 ## Flume
 
