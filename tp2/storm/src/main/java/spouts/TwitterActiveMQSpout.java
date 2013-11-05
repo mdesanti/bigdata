@@ -45,8 +45,7 @@ public class TwitterActiveMQSpout extends BaseRichSpout implements ExceptionList
 	}
 
 	private void connectToQueue() {
-		//aca que ponemos?
-		ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("vm://localhost");
+		ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://10.117.39.161:61616");
 		 
 		try {
 			connection = connectionFactory.createConnection();
@@ -88,6 +87,7 @@ public class TwitterActiveMQSpout extends BaseRichSpout implements ExceptionList
 	public void nextTuple() {
 		Message message;
 		System.out.println("Next tuple...");
+		_collector.emit(new Values("pepe"));
 		try {
 			message = consumer.receive(1000);
 			if (message instanceof TextMessage) {

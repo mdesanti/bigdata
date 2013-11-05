@@ -38,7 +38,7 @@ public class ActiveMQSink extends AbstractSink implements Configurable {
 
 	public void start() {
 		// Create a ConnectionFactory
-        ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("vm://localhost");
+        ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://10.117.39.161:61616");
 
 		try {
 			connection = connectionFactory.createConnection();
