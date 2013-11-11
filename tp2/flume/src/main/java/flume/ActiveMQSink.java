@@ -1,21 +1,11 @@
 package flume;
 
-import javax.jms.Connection;
-import javax.jms.DeliveryMode;
-import javax.jms.Destination;
-import javax.jms.JMSException;
-import javax.jms.MessageProducer;
-import javax.jms.Session;
-import javax.jms.TextMessage;
-
 import org.apache.activemq.ActiveMQConnectionFactory;
-import org.apache.flume.Channel;
-import org.apache.flume.Context;
-import org.apache.flume.Event;
-import org.apache.flume.EventDeliveryException;
-import org.apache.flume.Transaction;
+import org.apache.flume.*;
 import org.apache.flume.conf.Configurable;
 import org.apache.flume.sink.AbstractSink;
+
+import javax.jms.*;
 
 public class ActiveMQSink extends AbstractSink implements Configurable {
 	
@@ -41,10 +31,13 @@ public class ActiveMQSink extends AbstractSink implements Configurable {
         ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://10.117.39.161:61616");
 
 		try {
+            System.out.println("1. createConnection");
 			connection = connectionFactory.createConnection();
+            System.out.println("2. starting");
 			connection.start();
+            System.out.println("3. started");
 
-	        // Create a Session
+            // Create a Session
 	        session = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);
 
 	        // Create the destination (Topic or Queue)
@@ -55,9 +48,10 @@ public class ActiveMQSink extends AbstractSink implements Configurable {
 	        producer.setDeliveryMode(DeliveryMode.PERSISTENT);
 	        
 		} catch (JMSException e) {
-			// TODO Auto-generated catch block
+            System.out.println("EXCEPT");
 			e.printStackTrace();
 		}
+        System.out.println("------------- FINISHED !");
 	}
 
 	public void stop() {
@@ -74,6 +68,7 @@ public class ActiveMQSink extends AbstractSink implements Configurable {
 	public Status process() throws EventDeliveryException {
 		Status status = null;
 
+        System.out.println("------------- GOT TWEET !");
 		// Start transaction
 		Channel ch = getChannel();
 		Transaction txn = ch.getTransaction();
@@ -95,6 +90,7 @@ public class ActiveMQSink extends AbstractSink implements Configurable {
 			txn.commit();
 			status = Status.READY;
 		} catch (Throwable t) {
+            System.out.println("------------- GOT EXCEPTION! ");
 			txn.rollback();
 
 			// Log exception, handle individual exceptions as needed

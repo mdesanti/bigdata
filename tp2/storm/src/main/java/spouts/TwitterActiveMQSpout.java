@@ -1,20 +1,5 @@
 package spouts;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.jms.Connection;
-import javax.jms.Destination;
-import javax.jms.ExceptionListener;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageConsumer;
-import javax.jms.Session;
-import javax.jms.TextMessage;
-
-import org.apache.activemq.ActiveMQConnectionFactory;
-import org.apache.log4j.Logger;
-
 import backtype.storm.Config;
 import backtype.storm.spout.SpoutOutputCollector;
 import backtype.storm.task.TopologyContext;
@@ -22,6 +7,12 @@ import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichSpout;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Values;
+import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.log4j.Logger;
+
+import javax.jms.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public class TwitterActiveMQSpout extends BaseRichSpout implements ExceptionListener {
 	
@@ -45,7 +36,7 @@ public class TwitterActiveMQSpout extends BaseRichSpout implements ExceptionList
 	}
 
 	private void connectToQueue() {
-		ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://10.117.39.161:61616");
+		ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:8888");
 		 
 		try {
 			connection = connectionFactory.createConnection();

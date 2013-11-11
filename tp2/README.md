@@ -73,4 +73,7 @@ $ tar -zxvf apache-flume-1.4.0-SNAPSHOT-bin.tar.gz
 If you want to debug, set the sink to be logger and add the following line to the previous:
 ```
 -Dflume.root.logger=INFO,console
+-C custom-sink.jar
 ```
+
+

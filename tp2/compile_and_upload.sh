@@ -16,9 +16,9 @@ mvn assembly:assembly
 
 echo "Moving storm jar..."
 cd target
-mv storm-0.0.1-SNAPSHOT-jar-with-dependencies.jar ../../
+mv storm-twitter-0.0.1-SNAPSHOT-jar-with-dependencies.jar ../../
 cd ../../
-mv storm-0.0.1-SNAPSHOT-jar-with-dependencies.jar storm.jar
+mv storm-twitter-0.0.1-SNAPSHOT-jar-with-dependencies.jar storm.jar
 
 echo "Uploading twitter-client.jar..."
 scp -i ../../id_dsa twitter-client.jar hadoop@107.20.161.53:./grupo2/
