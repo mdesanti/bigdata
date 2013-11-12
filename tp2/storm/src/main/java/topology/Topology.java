@@ -24,9 +24,7 @@ public class Topology {
 
 		if (args != null && args.length > 0) {
 			conf.setNumWorkers(3);
-			System.out.println("CREATING TOPOLOGY");
 			StormTopology topology = builder.createTopology();
-			System.out.println("SUBMITING TOPOLOGY");
 			StormSubmitter.submitTopology(args[0], conf, topology);
 		} else {
 			LocalCluster cluster = new LocalCluster();

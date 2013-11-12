@@ -8,11 +8,11 @@ import org.apache.flume.sink.AbstractSink;
 import javax.jms.*;
 
 public class ActiveMQSink extends AbstractSink implements Configurable {
-	
+
 	private static String TOPIC_NAME = "TWITTER";
-	
+
 	private String myProp;
-	
+
 	private MessageProducer producer;
 	private Session session;
 	private Connection connection;
@@ -28,35 +28,31 @@ public class ActiveMQSink extends AbstractSink implements Configurable {
 
 	public void start() {
 		// Create a ConnectionFactory
-        ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://10.117.39.161:61616");
+		ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(
+				"tcp://10.117.39.161:61616");
 
 		try {
-            System.out.println("1. createConnection");
 			connection = connectionFactory.createConnection();
-            System.out.println("2. starting");
 			connection.start();
-            System.out.println("3. started");
 
-            // Create a Session
-	        session = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);
+			// Create a Session
+			session = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);
 
-	        // Create the destination (Topic or Queue)
-	        Destination destination = session.createTopic(TOPIC_NAME);
+			// Create the destination (Topic or Queue)
+			Destination destination = session.createQueue(TOPIC_NAME);
 
-	        // Create a MessageProducer from the Session to the Topic or Queue
-	        producer = session.createProducer(destination);
-	        producer.setDeliveryMode(DeliveryMode.PERSISTENT);
-	        
+			// Create a MessageProducer from the Session to the Topic or Queue
+			producer = session.createProducer(destination);
+			producer.setDeliveryMode(DeliveryMode.PERSISTENT);
+
 		} catch (JMSException e) {
-            System.out.println("EXCEPT");
 			e.printStackTrace();
 		}
-        System.out.println("------------- FINISHED !");
 	}
 
 	public void stop() {
 		// Clean up
-        try {
+		try {
 			session.close();
 			connection.close();
 		} catch (JMSException e) {
@@ -68,7 +64,7 @@ public class ActiveMQSink extends AbstractSink implements Configurable {
 	public Status process() throws EventDeliveryException {
 		Status status = null;
 
-        System.out.println("------------- GOT TWEET !");
+		System.out.println("------------- GOT TWEET !");
 		// Start transaction
 		Channel ch = getChannel();
 		Transaction txn = ch.getTransaction();
@@ -78,19 +74,21 @@ public class ActiveMQSink extends AbstractSink implements Configurable {
 			// do
 
 			Event event = ch.take();
-			String text = new String(event.getBody());
-			System.out.println("Something's in the sink! " + text);
-			
-			// Create a messages
-	        TextMessage message = session.createTextMessage(text);
+			if (event != null) {
+				String text = new String(event.getBody());
+				System.out.println("Something's in the sink! " + text);
 
-	        // Tell the producer to send the message
-	        producer.send(message);
+				// Create a messages
+				TextMessage message = session.createTextMessage(text);
 
-			txn.commit();
-			status = Status.READY;
+				// Tell the producer to send the message
+				producer.send(message);
+
+				txn.commit();
+				status = Status.READY;
+			}
 		} catch (Throwable t) {
-            System.out.println("------------- GOT EXCEPTION! ");
+			System.out.println("------------- GOT EXCEPTION! ");
 			txn.rollback();
 
 			// Log exception, handle individual exceptions as needed

@@ -21,7 +21,6 @@ public class SystemOutBolt extends BaseRichBolt {
 	public static Logger LOG = Logger.getLogger(SystemOutBolt.class);
 
 	public void execute(Tuple tuple) {
-		System.out.println(tuple.toString());
 		_collector.ack(tuple);
 	}
 

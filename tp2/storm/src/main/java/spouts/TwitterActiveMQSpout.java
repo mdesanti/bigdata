@@ -1,5 +1,28 @@
 package spouts;
 
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.jms.Connection;
+import javax.jms.Destination;
+import javax.jms.ExceptionListener;
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.MessageConsumer;
+import javax.jms.Session;
+import javax.jms.TextMessage;
+
+import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.hbase.thrift.generated.IllegalArgument;
+import org.apache.log4j.Logger;
+
 import backtype.storm.Config;
 import backtype.storm.spout.SpoutOutputCollector;
 import backtype.storm.task.TopologyContext;
@@ -7,17 +30,12 @@ import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichSpout;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Values;
-import org.apache.activemq.ActiveMQConnectionFactory;
-import org.apache.log4j.Logger;
-
-import javax.jms.*;
-import java.util.HashMap;
-import java.util.Map;
 
 public class TwitterActiveMQSpout extends BaseRichSpout implements ExceptionListener {
 	
 	private static final long serialVersionUID = 1L;
 	public static Logger LOG = Logger.getLogger(TwitterActiveMQSpout.class);
+	private static String QUEUE_NAME = "TWITTER";
 	
 	private MessageConsumer consumer;
 	private Session session;
@@ -35,8 +53,8 @@ public class TwitterActiveMQSpout extends BaseRichSpout implements ExceptionList
 		_isDistributed = isDistributed;
 	}
 
-	private void connectToQueue() {
-		ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:8888");
+	private void connectToQueue() throws IOException {
+		ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://10.117.39.161:61616");
 		 
 		try {
 			connection = connectionFactory.createConnection();
@@ -48,11 +66,26 @@ public class TwitterActiveMQSpout extends BaseRichSpout implements ExceptionList
 	        session = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);
 
 	        // Create the destination (Topic or Queue)
-	        Destination destination = session.createQueue("TWITTER");
+	        Destination destination = session.createQueue(QUEUE_NAME);
 
 	        // Create a MessageConsumer from the Session to the Topic or Queue
 	        consumer = session.createConsumer(destination);
 		} catch (JMSException e) {
+			e.printStackTrace();
+		}
+		
+		Configuration configuration = new Configuration();
+		FileSystem hdfs = FileSystem.get(configuration);
+		Path file = new Path("/ITBA/g1/logger.txt");
+		OutputStream os = hdfs.create(file);
+		BufferedWriter br = new BufferedWriter( new OutputStreamWriter( os, "UTF-8" ) );
+		br.write("Connected");
+		br.close();
+		hdfs.close();
+		try {
+			throw (new IllegalArgument("Connected"));
+		} catch (IllegalArgument e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -61,7 +94,12 @@ public class TwitterActiveMQSpout extends BaseRichSpout implements ExceptionList
 	public void open(Map conf, TopologyContext context,
 			SpoutOutputCollector collector) {
 		_collector = collector;
-		connectToQueue();
+		try {
+			connectToQueue();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	public void close() {
@@ -77,17 +115,14 @@ public class TwitterActiveMQSpout extends BaseRichSpout implements ExceptionList
 
 	public void nextTuple() {
 		Message message;
-		System.out.println("Next tuple...");
 		_collector.emit(new Values("pepe"));
 		try {
 			message = consumer.receive(1000);
 			if (message instanceof TextMessage) {
 	            TextMessage textMessage = (TextMessage) message;
 	            String text = textMessage.getText();
-	            System.out.println("Received: " + text);
 	            _collector.emit(new Values(text));
 	        } else {
-	            System.out.println("Received: " + message);
 	        }
 		} catch (JMSException e) {
 			// TODO Auto-generated catch block

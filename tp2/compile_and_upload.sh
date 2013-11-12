@@ -21,11 +21,11 @@ cd ../../
 mv storm-twitter-0.0.1-SNAPSHOT-jar-with-dependencies.jar storm.jar
 
 echo "Uploading twitter-client.jar..."
-scp -i ../../id_dsa twitter-client.jar hadoop@107.20.161.53:./grupo2/
+rsync -auvz -e "ssh -i ../../id_dsa"  twitter-client.jar hadoop@107.20.161.53:/home/hadoop/grupo2/
 
 echo "Uploading custom-sink.jar..."
-scp -i ../../id_dsa custom-sink.jar hadoop@107.20.161.53:./grupo2/
+rsync -auvz -e "ssh -i ../../id_dsa"  custom-sink.jar hadoop@107.20.161.53:/home/hadoop/grupo2/
 
 echo "Uploading storm.jar..."
-scp -i ../../id_dsa storm.jar hadoop@107.20.161.53:./grupo2/
+rsync -auvz -e "ssh -i ../../id_dsa"  storm.jar hadoop@107.20.161.53:/home/hadoop/grupo2/
 
