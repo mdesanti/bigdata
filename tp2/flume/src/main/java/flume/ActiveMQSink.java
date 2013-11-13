@@ -9,7 +9,7 @@ import javax.jms.*;
 
 public class ActiveMQSink extends AbstractSink implements Configurable {
 
-	private static String TOPIC_NAME = "TWITTER";
+	private static String TOPIC_NAME = "TWITTER-G1";
 
 	private String myProp;
 
@@ -64,7 +64,6 @@ public class ActiveMQSink extends AbstractSink implements Configurable {
 	public Status process() throws EventDeliveryException {
 		Status status = null;
 
-		System.out.println("------------- GOT TWEET !");
 		// Start transaction
 		Channel ch = getChannel();
 		Transaction txn = ch.getTransaction();
@@ -74,21 +73,18 @@ public class ActiveMQSink extends AbstractSink implements Configurable {
 			// do
 
 			Event event = ch.take();
-			if (event != null) {
-				String text = new String(event.getBody());
-				System.out.println("Something's in the sink! " + text);
+			String text = new String(event.getBody());
+			System.out.println("Something's in the sink! " + text);
 
-				// Create a messages
-				TextMessage message = session.createTextMessage(text);
+			// Create a messages
+			TextMessage message = session.createTextMessage(text);
 
-				// Tell the producer to send the message
-				producer.send(message);
+			// Tell the producer to send the message
+			producer.send(message);
 
-				txn.commit();
-				status = Status.READY;
-			}
+			txn.commit();
+			status = Status.READY;
 		} catch (Throwable t) {
-			System.out.println("------------- GOT EXCEPTION! ");
 			txn.rollback();
 
 			// Log exception, handle individual exceptions as needed
