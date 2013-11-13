@@ -20,7 +20,6 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.hbase.thrift.generated.IllegalArgument;
 import org.apache.log4j.Logger;
 
 import backtype.storm.Config;
@@ -35,7 +34,7 @@ public class TwitterActiveMQSpout extends BaseRichSpout implements ExceptionList
 	
 	private static final long serialVersionUID = 1L;
 	public static Logger LOG = Logger.getLogger(TwitterActiveMQSpout.class);
-	private static String QUEUE_NAME = "TWITTER";
+	private static String QUEUE_NAME = "TWITTER-G1";
 	
 	private MessageConsumer consumer;
 	private Session session;
@@ -82,12 +81,6 @@ public class TwitterActiveMQSpout extends BaseRichSpout implements ExceptionList
 		br.write("Connected");
 		br.close();
 		hdfs.close();
-		try {
-			throw (new IllegalArgument("Connected"));
-		} catch (IllegalArgument e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	}
 
 	@SuppressWarnings("rawtypes")

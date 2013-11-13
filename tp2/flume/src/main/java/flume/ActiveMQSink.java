@@ -36,7 +36,7 @@ public class ActiveMQSink extends AbstractSink implements Configurable {
 			connection.start();
 
 			// Create a Session
-			session = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);
+			session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
 			// Create the destination (Topic or Queue)
 			Destination destination = session.createQueue(TOPIC_NAME);
