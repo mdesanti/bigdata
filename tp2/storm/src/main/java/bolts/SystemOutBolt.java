@@ -45,6 +45,12 @@ public class SystemOutBolt extends BaseRichBolt {
 
 	@Override
 	public void execute(Tuple tuple) {
+		
+		for (String party : partiesKeywords.keySet()) {
+			for (String keyword : partiesKeywords.get(party)) {
+				//Si tuple.getString(0) es igual a alguna de estas palabras lo agrego
+			}
+		}
 		// Connection connection;
 		// try {
 		// connection = cm.getConnection();
@@ -59,7 +65,7 @@ public class SystemOutBolt extends BaseRichBolt {
 		// } catch (SQLException e) {
 		// e.printStackTrace();
 		// }
-		_collector.emit(tuple, new Values("pepe execute"));
+		
 		_collector.ack(tuple);
 	}
 

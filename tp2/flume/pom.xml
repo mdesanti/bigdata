@@ -4,7 +4,7 @@
 	<groupId>flume</groupId>
 	<artifactId>flume</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	
+
 	<build>
 		<finalName>custom-sink</finalName>
 		<plugins>
