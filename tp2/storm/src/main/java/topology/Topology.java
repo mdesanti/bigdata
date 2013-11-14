@@ -16,7 +16,6 @@ public class Topology {
 
 	public static void main(String[] args) throws Exception {
 		TopologyBuilder builder = new TopologyBuilder();
-
 		builder.setSpout("tweets", new TwitterActiveMQSpout(), 3);
 		builder.setBolt("printer", new SystemOutBolt(), 10).shuffleGrouping("tweets");
 

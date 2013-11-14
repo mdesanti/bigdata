@@ -1,9 +1,6 @@
 package spouts;
 
-import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,12 +11,8 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.Session;
-import javax.jms.TextMessage;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
 import org.apache.log4j.Logger;
 
 import backtype.storm.Config;
@@ -62,7 +55,7 @@ public class TwitterActiveMQSpout extends BaseRichSpout implements ExceptionList
 	        connection.setExceptionListener(this);
 
 	        // Create a Session
-	        session = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);
+	        session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
 	        // Create the destination (Topic or Queue)
 	        Destination destination = session.createQueue(QUEUE_NAME);
@@ -73,16 +66,17 @@ public class TwitterActiveMQSpout extends BaseRichSpout implements ExceptionList
 			e.printStackTrace();
 		}
 		
-		Configuration configuration = new Configuration();
-		FileSystem hdfs = FileSystem.get(configuration);
-		Path file = new Path("/ITBA/g1/logger.txt");
-		OutputStream os = hdfs.create(file);
-		BufferedWriter br = new BufferedWriter( new OutputStreamWriter( os, "UTF-8" ) );
-		br.write("Connected");
-		br.close();
-		hdfs.close();
+//		Configuration configuration = new Configuration();
+//		FileSystem hdfs = FileSystem.get(configuration);
+//		Path file = new Path("/ITBA/g1/logger.txt");
+//		OutputStream os = hdfs.create(file);
+//		BufferedWriter br = new BufferedWriter( new OutputStreamWriter( os, "UTF-8" ) );
+//		br.write("Connected");
+//		br.close();
+//		hdfs.close();
 	}
 
+	@Override
 	@SuppressWarnings("rawtypes")
 	public void open(Map conf, TopologyContext context,
 			SpoutOutputCollector collector) {
@@ -95,6 +89,7 @@ public class TwitterActiveMQSpout extends BaseRichSpout implements ExceptionList
 		}
 	}
 
+	@Override
 	public void close() {
 		try {
 			consumer.close();
@@ -106,17 +101,18 @@ public class TwitterActiveMQSpout extends BaseRichSpout implements ExceptionList
 		}
 	}
 
+	@Override
 	public void nextTuple() {
 		Message message;
 		_collector.emit(new Values("pepe"));
 		try {
 			message = consumer.receive(1000);
-			if (message instanceof TextMessage) {
-	            TextMessage textMessage = (TextMessage) message;
-	            String text = textMessage.getText();
-	            _collector.emit(new Values(text));
-	        } else {
-	        }
+//			if (message instanceof TextMessage) {
+//	            TextMessage textMessage = (TextMessage) message;
+//	            String text = textMessage.getText();
+//	            _collector.emit(new Values(text));
+//	        } else {
+//	        }
 		} catch (JMSException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -124,18 +120,12 @@ public class TwitterActiveMQSpout extends BaseRichSpout implements ExceptionList
 		 
 	}
 
-	public void ack(Object msgId) {
-
-	}
-
-	public void fail(Object msgId) {
-
-	}
-
+	@Override
 	public void declareOutputFields(OutputFieldsDeclarer declarer) {
 		declarer.declare(new Fields("word"));
 	}
-
+	
+	@Override
 	public Map<String, Object> getComponentConfiguration() {
 		if (!_isDistributed) {
 			Map<String, Object> ret = new HashMap<String, Object>();
@@ -146,8 +136,9 @@ public class TwitterActiveMQSpout extends BaseRichSpout implements ExceptionList
 		}
 	}
 
+	@Override
 	public void onException(JMSException arg0) {
-		//log error
+		
 	}
 
 }
