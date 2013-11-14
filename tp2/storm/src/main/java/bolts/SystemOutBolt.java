@@ -40,38 +40,38 @@ public class SystemOutBolt extends BaseRichBolt {
 
 	@Override
 	public void execute(Tuple tuple) {
-		
+
 		JSONObject json = null;
 		try {
 			json = (JSONObject) new JSONParser().parse(tuple.getString(0));
-			String text = new String(((String) json.get("text")).getBytes(), CHARSET);
-			for (String party : partiesKeywords.keySet()) {
-				for (String keyword : partiesKeywords.get(party)) {
-					if(text.contains(keyword)) {
-						Connection connection;
-						try {
-							connection = cm.getConnection();
+			String text = new String(((String) json.get("text")).getBytes(),
+					CHARSET);
+			Connection connection;
+			try {
+				connection = cm.getConnection();
+				for (String party : partiesKeywords.keySet()) {
+					for (String keyword : partiesKeywords.get(party)) {
+						if (text.contains(keyword)) {
 							PreparedStatement stmt = connection
 									.prepareStatement("insert into party(name ,quantity) values(?,?)");
-							
-							stmt.setString(1, keyword);
+
+							stmt.setString(1, party);
 							stmt.setInt(2, 1);
 							stmt.execute();
-							
-							connection.close();
-						} catch (SQLException e) {
-							e.printStackTrace();
+
+
 						}
-						
 					}
 				}
+				connection.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
 			}
 		} catch (ParseException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		
-		
+
 		_collector.ack(tuple);
 	}
 
