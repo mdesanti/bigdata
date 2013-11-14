@@ -1,24 +1,19 @@
 package bolts;
 
-import java.io.IOException;
-import java.util.ArrayList;
+import java.nio.charset.Charset;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import jdbc.ConnectionManager;
 import jdbc.MySQLConnectionManager;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.HBaseConfiguration;
-import org.apache.hadoop.hbase.KeyValue;
-import org.apache.hadoop.hbase.client.HTable;
-import org.apache.hadoop.hbase.client.Result;
-import org.apache.hadoop.hbase.client.ResultScanner;
-import org.apache.hadoop.hbase.client.Scan;
-import org.apache.hadoop.hbase.util.Bytes;
-import org.apache.hadoop.mapreduce.Mapper.Context;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
@@ -26,12 +21,12 @@ import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
-import backtype.storm.tuple.Values;
 
 //Read: https://github.com/nathanmarz/storm/wiki/Tutorial
 public class SystemOutBolt extends BaseRichBolt {
 
 	private static final long serialVersionUID = 1L;
+	private static Charset CHARSET = Charset.forName("ISO-8859-1");
 	OutputCollector _collector;
 	private ConnectionManager cm;
 	private HashMap<String, List<String>> partiesKeywords = new HashMap<String, List<String>>();
@@ -46,25 +41,36 @@ public class SystemOutBolt extends BaseRichBolt {
 	@Override
 	public void execute(Tuple tuple) {
 		
-		for (String party : partiesKeywords.keySet()) {
-			for (String keyword : partiesKeywords.get(party)) {
-				//Si tuple.getString(0) es igual a alguna de estas palabras lo agrego
+		JSONObject json = null;
+		try {
+			json = (JSONObject) new JSONParser().parse(tuple.getString(0));
+			String text = new String(((String) json.get("text")).getBytes(), CHARSET);
+			for (String party : partiesKeywords.keySet()) {
+				for (String keyword : partiesKeywords.get(party)) {
+					if(text.contains(keyword)) {
+						Connection connection;
+						try {
+							connection = cm.getConnection();
+							PreparedStatement stmt = connection
+									.prepareStatement("insert into party(name ,quantity) values(?,?)");
+							
+							stmt.setString(1, keyword);
+							stmt.setInt(2, 1);
+							stmt.execute();
+							
+							connection.close();
+						} catch (SQLException e) {
+							e.printStackTrace();
+						}
+						
+					}
+				}
 			}
+		} catch (ParseException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
 		}
-		// Connection connection;
-		// try {
-		// connection = cm.getConnection();
-		// PreparedStatement stmt = connection
-		// .prepareStatement("insert into party(name ,quantity) values(?,?)");
-		//
-		// stmt.setString(1, "unen");
-		// stmt.setInt(2, 1);
-		// stmt.execute();
-		//
-		// connection.close();
-		// } catch (SQLException e) {
-		// e.printStackTrace();
-		// }
+		
 		
 		_collector.ack(tuple);
 	}

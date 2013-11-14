@@ -2,6 +2,7 @@ package jdbc;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -12,7 +13,7 @@ import java.util.Properties;
  * 
  */
 
-public class MySQLConnectionManager implements ConnectionManager {
+public class MySQLConnectionManager implements ConnectionManager, Serializable {
 	private boolean inUse = false;
 	private Connection connection;
 
@@ -28,27 +29,22 @@ public class MySQLConnectionManager implements ConnectionManager {
 	}
 
 	public Connection getConnection() throws SQLException {
-		Properties myProps = new Properties();
-		InputStream MyInputStream = null;
-		MyInputStream = this.getClass().getClassLoader()
-				.getResourceAsStream("db.properties");
-		try {
-			myProps.load(MyInputStream);
-		} catch (IOException e1) {
-			throw new SQLException();
-		}
+//		Properties myProps = new Properties();
+//		InputStream MyInputStream = null;
+//		MyInputStream = this.getClass().getClassLoader()
+//				.getResourceAsStream("db.properties");
+//		try {
+//			myProps.load(MyInputStream);
+//		} catch (IOException e1) {
+//			throw new SQLException();
+//		}
 
-		dbName = myProps.getProperty("dbName");
-		dbPort = myProps.getProperty("dbPort");
-		dbHost = myProps.getProperty("dbHost");
-		username = myProps.getProperty("username");
-		password = myProps.getProperty("password");
+		dbName = "itba_pintos";
+		dbPort = "3306";
+		dbHost = "54.224.21.206";
+		username = "pintos";
+		password = "5678";
 
-		try {
-			MyInputStream.close();
-		} catch (IOException e1) {
-			throw new SQLException();
-		}
 		try {
 			this.connection = DriverManager.getConnection("jdbc:mysql://"
 					+ dbHost + ":" + dbPort + "/" + dbName, username, password);
