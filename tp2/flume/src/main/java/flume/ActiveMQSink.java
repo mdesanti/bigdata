@@ -84,7 +84,7 @@ public class ActiveMQSink extends AbstractSink implements Configurable {
 
 			Event event = ch.take();
 			String text = new String(event.getBody());
-			System.out.println("Something's in the sink! " + text);
+//			System.out.println("Something's in the sink! " + text);
 
 			// Create a messages
 			TextMessage message = session.createTextMessage(text);
