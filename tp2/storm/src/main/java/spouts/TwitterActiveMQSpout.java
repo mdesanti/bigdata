@@ -69,15 +69,6 @@ public class TwitterActiveMQSpout extends BaseRichSpout implements
 			e.printStackTrace();
 		}
 
-		// Configuration configuration = new Configuration();
-		// FileSystem hdfs = FileSystem.get(configuration);
-		// Path file = new Path("/ITBA/g1/logger.txt");
-		// OutputStream os = hdfs.create(file);
-		// BufferedWriter br = new BufferedWriter( new OutputStreamWriter( os,
-		// "UTF-8" ) );
-		// br.write("Connected");
-		// br.close();
-		// hdfs.close();
 	}
 
 	@Override

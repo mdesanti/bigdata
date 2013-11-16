@@ -33,7 +33,7 @@ public class SystemOutBolt extends BaseRichBolt {
 	private ConnectionManager cm;
 	private HashMap<String, List<String>> partiesKeywords = new HashMap<String, List<String>>();
 
-	 public static Logger LOG = Logger.getLogger(SystemOutBolt.class);
+	public static Logger LOG = Logger.getLogger(SystemOutBolt.class);
 
 	public SystemOutBolt(HashMap<String, List<String>> partiesKeywords) {
 		this.cm = new MySQLConnectionManager();
@@ -52,48 +52,28 @@ public class SystemOutBolt extends BaseRichBolt {
 			Connection connection;
 			try {
 				connection = cm.getConnection();
-				for (String party : partiesKeywords.keySet()) {
-					for (String keyword : partiesKeywords.get(party)) {
-						String keywordDowncase = keyword.toLowerCase();
-						if (text.contains(keywordDowncase)) {
-							PreparedStatement debug = connection
-									.prepareStatement("insert into debug(text) values(?)");
-							debug.setString(1, "Got match of " + keywordDowncase + " IN => " + text);
-							debug.execute();
-							
-//							PreparedStatement stmt = connection
-//									.prepareStatement("insert into party(name ,quantity) values(?,?)");
-//
-//							stmt.setString(1, party);
-//							stmt.setInt(2, 1);
-//							stmt.execute();
+				String[] words = text.split(" ");
+				for (String word : words) {
+					word = word.replace("#", "");
+					for (String party : partiesKeywords.keySet()) {
+						for (String keyword : partiesKeywords.get(party)) {
+							if (word.equalsIgnoreCase(keyword)) {
+								PreparedStatement stmt = connection
+										.prepareStatement("insert into party(name, quantity) values(?,1) ON DUPLICATE KEY UPDATE quantity = quantity + 1;");
+								stmt.setString(1, party);
+								stmt.execute();
 
-
+							}
 						}
 					}
 				}
 				connection.close();
 			} catch (SQLException e) {
-				PreparedStatement stmt;
-				try {
-					Connection connection1;
-					connection1 = cm.getConnection();
-					stmt = connection1
-							.prepareStatement("insert into party(name ,quantity) values(?,?)");
-					stmt.setString(1, "error");
-					stmt.setInt(2, 1);
-					stmt.execute();
-				} catch (SQLException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-
+				LOG.log(Level.ERROR, "SQL error in Bolt \n" + e.getMessage());
 			}
 		} catch (ParseException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			LOG.log(Level.ERROR, "SQL error in Bolt \n" + e1.getMessage());
 		}
-
 		_collector.ack(tuple);
 	}
 
