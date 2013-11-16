@@ -1,21 +1,5 @@
 package spouts;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.jms.Connection;
-import javax.jms.Destination;
-import javax.jms.ExceptionListener;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageConsumer;
-import javax.jms.Session;
-import javax.jms.TextMessage;
-
-import org.apache.activemq.ActiveMQConnectionFactory;
-import org.apache.log4j.Logger;
-
 import backtype.storm.Config;
 import backtype.storm.spout.SpoutOutputCollector;
 import backtype.storm.task.TopologyContext;
@@ -23,6 +7,12 @@ import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichSpout;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Values;
+import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.log4j.Logger;
+
+import javax.jms.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public class TwitterActiveMQSpout extends BaseRichSpout implements
 		ExceptionListener {
@@ -31,15 +21,16 @@ public class TwitterActiveMQSpout extends BaseRichSpout implements
 	public static Logger LOG = Logger.getLogger(TwitterActiveMQSpout.class);
 	private static String QUEUE_NAME = "TWITTER-G1";
 
-	private MessageConsumer consumer;
-	private Session session;
-	private Connection connection;
+	MessageConsumer consumer;
+	Session session;
+	Connection connection;
 
 	boolean _isDistributed;
 
 	SpoutOutputCollector _collector;
+    ActiveMQConnectionFactory connectionFactory;
 
-	public TwitterActiveMQSpout() {
+    public TwitterActiveMQSpout() {
 		this(true);
 	}
 
@@ -47,41 +38,43 @@ public class TwitterActiveMQSpout extends BaseRichSpout implements
 		_isDistributed = isDistributed;
 	}
 
-	private void connectToQueue() throws IOException {
-		ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(
-				"tcp://10.117.39.161:61616");
+    void connectToQueue() {
+        try {
+            connection = initConnection();
+            // Create a Session
+            session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-		try {
-			connection = connectionFactory.createConnection();
-			connection.start();
+            // Create the destination (Topic or Queue)
+            Destination destination = session.createQueue(QUEUE_NAME);
 
-			connection.setExceptionListener(this);
+            // Create a MessageProducer from the Session to the Queue
+            consumer = session.createConsumer(destination);
+        } catch (JMSException e) {
+            e.printStackTrace();
+        }
+    }
 
-			// Create a Session
-			session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+    public Connection initConnection() throws JMSException {
+        connection = getConnectionFactory().createConnection();
+        connection.start();
+        return connection;
+    }
 
-			// Create the destination (Topic or Queue)
-			Destination destination = session.createQueue(QUEUE_NAME);
+    public ActiveMQConnectionFactory getConnectionFactory() {
+        if (connectionFactory == null) {
+            connectionFactory = new ActiveMQConnectionFactory(
+                    "tcp://10.117.39.161:61616");
+        }
+        return connectionFactory;
+    }
 
-			// Create a MessageConsumer from the Session to the Topic or Queue
-			consumer = session.createConsumer(destination);
-		} catch (JMSException e) {
-			e.printStackTrace();
-		}
-
-	}
 
 	@Override
 	@SuppressWarnings("rawtypes")
 	public void open(Map conf, TopologyContext context,
 			SpoutOutputCollector collector) {
 		_collector = collector;
-		try {
-			connectToQueue();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+        connectToQueue();
 	}
 
 	@Override

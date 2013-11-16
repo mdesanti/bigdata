@@ -58,6 +58,7 @@ public class ActiveMQSink extends AbstractSink implements Configurable {
 		try {
 			session.close();
 			connection.close();
+            producer.close();
 		} catch (JMSException e) {
 			e.printStackTrace();
 		}

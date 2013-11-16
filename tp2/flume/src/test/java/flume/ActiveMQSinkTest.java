@@ -81,11 +81,13 @@ public class ActiveMQSinkTest {
     public void testStop() throws JMSException {
         sink.session = mock(Session.class);
         sink.connection = mock(Connection.class);
+        sink.producer = mock(MessageProducer.class);
 
         sink.stop();
 
         verify(sink.session).close();
         verify(sink.connection).close();
+        verify(sink.producer).close();
     }
 
 

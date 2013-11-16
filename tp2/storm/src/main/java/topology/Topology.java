@@ -11,6 +11,7 @@ import bolts.SystemOutBolt;
 
 public class Topology {
 
+
 	public static void main(String[] args) throws Exception {
 		TopologyBuilder builder = new TopologyBuilder();
 		builder.setSpout("tweets", new TwitterActiveMQSpout(), 3);
@@ -32,5 +33,4 @@ public class Topology {
 			cluster.shutdown();
 		}
 	}
-
 }
