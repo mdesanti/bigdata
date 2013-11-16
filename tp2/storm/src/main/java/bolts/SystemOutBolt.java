@@ -10,6 +10,7 @@ import java.util.Map;
 import jdbc.ConnectionManager;
 import jdbc.MySQLConnectionManager;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.json.simple.JSONObject;
@@ -66,10 +67,10 @@ public class SystemOutBolt extends BaseRichBolt {
 				}
 				connection.close();
 			} catch (SQLException e) {
-				LOG.debug("SQL error in Bolt \n" + e.getMessage());
+				LOG.log(Level.ERROR, "SQL error in Bolt \n" + ExceptionUtils.getStackTrace(e));
 			}
 		} catch (ParseException e1) {
-			LOG.debug("SQL error in Bolt \n" + e1.getMessage());
+			LOG.log(Level.ERROR, "Parse error in Bolt \n" + ExceptionUtils.getStackTrace(e1));
 		}
 		_collector.ack(tuple);
 	}
