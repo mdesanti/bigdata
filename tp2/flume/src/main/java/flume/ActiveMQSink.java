@@ -75,7 +75,7 @@ public class ActiveMQSink extends AbstractSink implements Configurable {
 		try {
 			Event event = ch.take();
 			String text = new String(event.getBody());
-
+			
 			// Create a messages
 			TextMessage message = session.createTextMessage(text);
 
