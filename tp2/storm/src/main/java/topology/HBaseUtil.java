@@ -33,9 +33,9 @@ public class HBaseUtil {
 		return null;
 	}
 
-	public static HashMap<String, List<String>> partiesReader()
-			throws IOException, InterruptedException {
-		HashMap<String, List<String>> partiesKeywords = new HashMap<String, List<String>>();
+	public static HashMap<String, String> partiesReader() throws IOException,
+			InterruptedException {
+		HashMap<String, String> partiesKeywords = new HashMap<String, String>();
 		HTable table = getTable("itba_tp2_twitter_words");
 		Scan scan = new Scan();
 
@@ -44,14 +44,14 @@ public class HBaseUtil {
 		Iterator<Result> resultIterator = scanner.iterator();
 		while (resultIterator.hasNext()) {
 			Result result = resultIterator.next();
-			List<String> aux = new ArrayList<String>();
 			NavigableMap<byte[], byte[]> familyMap = result.getFamilyMap(Bytes
 					.toBytes("keyword"));
 			for (byte[] qualifier : familyMap.keySet()) {
 				byte[] q = familyMap.get(qualifier);
-				aux.add(Bytes.toString(q));
+				partiesKeywords.put(Bytes.toString(q).toLowerCase(),
+						Bytes.toString(result.getRow()));
 			}
-			partiesKeywords.put(Bytes.toString(result.getRow()), aux);
+
 		}
 		return partiesKeywords;
 	}

@@ -31,11 +31,11 @@ public class SystemOutBolt extends BaseRichBolt {
 	private static Charset CHARSET = Charset.forName("ISO-8859-1");
 	OutputCollector _collector;
 	private ConnectionManager cm;
-	private HashMap<String, List<String>> partiesKeywords = new HashMap<String, List<String>>();
+	private HashMap<String, String> partiesKeywords = new HashMap<String, String>();
 
 	public static Logger LOG = Logger.getLogger(SystemOutBolt.class);
 
-	public SystemOutBolt(HashMap<String, List<String>> partiesKeywords) {
+	public SystemOutBolt(HashMap<String, String> partiesKeywords) {
 		this.cm = new MySQLConnectionManager();
 		this.partiesKeywords = partiesKeywords;
 	}
@@ -54,17 +54,13 @@ public class SystemOutBolt extends BaseRichBolt {
 				connection = cm.getConnection();
 				String[] words = text.split(" ");
 				for (String word : words) {
-					word = word.replace("#", "");
-					for (String party : partiesKeywords.keySet()) {
-						for (String keyword : partiesKeywords.get(party)) {
-							if (word.equalsIgnoreCase(keyword)) {
-								PreparedStatement stmt = connection
-										.prepareStatement("insert into party(name, quantity) values(?,1) ON DUPLICATE KEY UPDATE quantity = quantity + 1;");
-								stmt.setString(1, party);
-								stmt.execute();
-
-							}
-						}
+					word = word.replace("#", "").toLowerCase();
+					String party = partiesKeywords.get(word);
+					if (party != null) {
+						PreparedStatement stmt = connection
+								.prepareStatement("insert into party(name, quantity) values(?,1) ON DUPLICATE KEY UPDATE quantity = quantity + 1;");
+						stmt.setString(1, party);
+						stmt.execute();
 					}
 				}
 				connection.close();
