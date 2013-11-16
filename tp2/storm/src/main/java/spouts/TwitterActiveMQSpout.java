@@ -1,6 +1,7 @@
 package spouts;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,7 +15,12 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 import backtype.storm.Config;
 import backtype.storm.spout.SpoutOutputCollector;
@@ -28,6 +34,7 @@ public class TwitterActiveMQSpout extends BaseRichSpout implements
 		ExceptionListener {
 
 	private static final long serialVersionUID = 1L;
+	private static Charset CHARSET = Charset.forName("ISO-8859-1");
 	public static Logger LOG = Logger.getLogger(TwitterActiveMQSpout.class);
 	private static String QUEUE_NAME = "TWITTER-G1";
 
@@ -97,17 +104,30 @@ public class TwitterActiveMQSpout extends BaseRichSpout implements
 
 	@Override
 	public void nextTuple() {
-		Message message;
+		Message message = null;
+		JSONObject json = null;
 		try {
 			message = consumer.receive(1000);
 			if (message instanceof TextMessage) {
 				TextMessage textMessage = (TextMessage) message;
 				String text = textMessage.getText();
-				_collector.emit(new Values(text));
+				json = (JSONObject) new JSONParser().parse(text);
+				String tweet = new String(((String) json.get("text")).getBytes(),
+						CHARSET).toLowerCase();
+				_collector.emit(new Values(tweet));
 			} else {
 			}
 		} catch (JMSException e) {
 			e.printStackTrace();
+		} catch (ParseException e) {
+			TextMessage textMessage = (TextMessage) message;
+			String text;
+			try {
+				text = textMessage.getText();
+				LOG.log(Level.ERROR, "Parse error in Spout \n" + ExceptionUtils.getStackTrace(e) + "\n For Text: " + text);
+			} catch (JMSException e1) {
+				LOG.log(Level.ERROR, ExceptionUtils.getStackTrace(e));
+			}
 		}
 
 	}

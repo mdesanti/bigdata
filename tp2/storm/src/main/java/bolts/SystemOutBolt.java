@@ -10,6 +10,7 @@ import java.util.Map;
 import jdbc.ConnectionManager;
 import jdbc.MySQLConnectionManager;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -43,34 +44,24 @@ public class SystemOutBolt extends BaseRichBolt {
 	@Override
 	public void execute(Tuple tuple) {
 
-		JSONObject json = null;
+		String text = tuple.getString(0);
+		Connection connection;
 		try {
-			json = (JSONObject) new JSONParser().parse(tuple.getString(0));
-			String text = new String(((String) json.get("text")).getBytes(),
-					CHARSET).toLowerCase();
-			LOG.log(Level.INFO, "GOT TEXT => " + text);
-			Connection connection;
-			try {
-				connection = cm.getConnection();
-				String[] words = text.split(" ");
-				for (String word : words) {
-					LOG.debug("Found hit for keyword: " + word
-							+ " in " + text);
-					word = word.replace("#", "").toLowerCase();
-					String party = partiesKeywords.get(word);
-					if (party != null) {
-						PreparedStatement stmt = connection
-								.prepareStatement("insert into party(name, quantity) values(?,1) ON DUPLICATE KEY UPDATE quantity = quantity + 1;");
-						stmt.setString(1, party);
-						stmt.execute();
-					}
+			connection = cm.getConnection();
+			String[] words = text.split(" ");
+			for (String word : words) {
+				word = word.replace("#", "").toLowerCase();
+				String party = partiesKeywords.get(word);
+				if (party != null) {
+					PreparedStatement stmt = connection
+							.prepareStatement("insert into party(name, quantity) values(?,1) ON DUPLICATE KEY UPDATE quantity = quantity + 1;");
+					stmt.setString(1, party);
+					stmt.execute();
 				}
-				connection.close();
-			} catch (SQLException e) {
-				LOG.log(Level.ERROR, "SQL error in Bolt \n" + ExceptionUtils.getStackTrace(e));
 			}
-		} catch (ParseException e1) {
-			LOG.log(Level.ERROR, "Parse error in Bolt \n" + ExceptionUtils.getStackTrace(e1));
+			connection.close();
+		} catch (SQLException e) {
+			LOG.log(Level.ERROR, "SQL error in Bolt \n" + ExceptionUtils.getStackTrace(e));
 		}
 		_collector.ack(tuple);
 	}
