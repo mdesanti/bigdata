@@ -58,6 +58,7 @@ public class SystemOutBolt extends BaseRichBolt {
 					for (String party : partiesKeywords.keySet()) {
 						for (String keyword : partiesKeywords.get(party)) {
 							if (word.equalsIgnoreCase(keyword)) {
+								LOG.log(Level.ALL, "Found hit for keyword: " + keyword + " in " + text);
 								PreparedStatement stmt = connection
 										.prepareStatement("insert into party(name, quantity) values(?,1) ON DUPLICATE KEY UPDATE quantity = quantity + 1;");
 								stmt.setString(1, party);
