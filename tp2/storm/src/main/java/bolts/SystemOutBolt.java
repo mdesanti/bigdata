@@ -5,12 +5,12 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import jdbc.ConnectionManager;
 import jdbc.MySQLConnectionManager;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.json.simple.JSONObject;
@@ -31,11 +31,11 @@ public class SystemOutBolt extends BaseRichBolt {
 	private static Charset CHARSET = Charset.forName("ISO-8859-1");
 	OutputCollector _collector;
 	private ConnectionManager cm;
-	private HashMap<String, List<String>> partiesKeywords = new HashMap<String, List<String>>();
+	private HashMap<String, String> partiesKeywords = new HashMap<String, String>();
 
 	public static Logger LOG = Logger.getLogger(SystemOutBolt.class);
 
-	public SystemOutBolt(HashMap<String, List<String>> partiesKeywords) {
+	public SystemOutBolt(HashMap<String, String> partiesKeywords) {
 		this.cm = new MySQLConnectionManager();
 		this.partiesKeywords = partiesKeywords;
 	}
@@ -54,25 +54,23 @@ public class SystemOutBolt extends BaseRichBolt {
 				connection = cm.getConnection();
 				String[] words = text.split(" ");
 				for (String word : words) {
-					word = word.replace("#", "");
-					for (String party : partiesKeywords.keySet()) {
-						for (String keyword : partiesKeywords.get(party)) {
-							if (word.equalsIgnoreCase(keyword)) {
-								PreparedStatement stmt = connection
-										.prepareStatement("insert into party(name, quantity) values(?,1) ON DUPLICATE KEY UPDATE quantity = quantity + 1;");
-								stmt.setString(1, party);
-								stmt.execute();
-
-							}
-						}
+					LOG.debug("Found hit for keyword: " + word
+							+ " in " + text);
+					word = word.replace("#", "").toLowerCase();
+					String party = partiesKeywords.get(word);
+					if (party != null) {
+						PreparedStatement stmt = connection
+								.prepareStatement("insert into party(name, quantity) values(?,1) ON DUPLICATE KEY UPDATE quantity = quantity + 1;");
+						stmt.setString(1, party);
+						stmt.execute();
 					}
 				}
 				connection.close();
 			} catch (SQLException e) {
-				LOG.log(Level.ERROR, "SQL error in Bolt \n" + e.getMessage());
+				LOG.log(Level.ERROR, "SQL error in Bolt \n" + ExceptionUtils.getStackTrace(e));
 			}
 		} catch (ParseException e1) {
-			LOG.log(Level.ERROR, "SQL error in Bolt \n" + e1.getMessage());
+			LOG.log(Level.ERROR, "Parse error in Bolt \n" + ExceptionUtils.getStackTrace(e1));
 		}
 		_collector.ack(tuple);
 	}
