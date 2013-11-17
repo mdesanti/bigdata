@@ -37,7 +37,7 @@ public class SystemOutBolt extends BaseRichBolt {
     public void execute(Tuple tuple) {
 
 		String text = tuple.getString(0);
-        if (text != null || text.length() == 0) {
+        if (text != null && text.length() != 0) {
             Connection connection = null;
             try {
                 connection = cm.getConnection();
