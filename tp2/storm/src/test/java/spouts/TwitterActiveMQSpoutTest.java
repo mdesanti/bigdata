@@ -98,7 +98,7 @@ public class TwitterActiveMQSpoutTest {
         TextMessage mockMessage = mock(TextMessage.class);
 
         when(spout.consumer.receive(anyInt())).thenReturn(mockMessage);
-        when(mockMessage.getText()).thenReturn("");
+        when(mockMessage.getText()).thenReturn("{ \"text\": \"testTweet\" }");
         doReturn(null).when(spout._collector).emit(Matchers.<List<Object>>anyObject());
 
         spout.nextTuple();
