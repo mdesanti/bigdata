@@ -1,5 +1,6 @@
 package topology;
 
+import jdbc.MySQLConnectionManager;
 import spouts.TwitterActiveMQSpout;
 import backtype.storm.Config;
 import backtype.storm.LocalCluster;
@@ -16,7 +17,7 @@ public class Topology {
 		TopologyBuilder builder = new TopologyBuilder();
 		builder.setSpout("tweets", new TwitterActiveMQSpout(), 3);
 		builder.setBolt("printer",
-				new SystemOutBolt(HBaseUtil.partiesReader()), 10)
+				new SystemOutBolt(HBaseUtil.partiesReader(), new MySQLConnectionManager()), 10)
 				.shuffleGrouping("tweets");
 
 		Config conf = new Config();

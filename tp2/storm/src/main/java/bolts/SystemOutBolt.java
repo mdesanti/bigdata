@@ -7,7 +7,6 @@ import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import jdbc.ConnectionManager;
-import jdbc.MySQLConnectionManager;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -29,8 +28,8 @@ public class SystemOutBolt extends BaseRichBolt {
     private ConnectionManager cm;
     private HashMap<String, String> partiesKeywords = new HashMap<String, String>();
 
-    public SystemOutBolt(HashMap<String, String> partiesKeywords) {
-        this.cm = new MySQLConnectionManager();
+    public SystemOutBolt(HashMap<String, String> partiesKeywords, ConnectionManager manager) {
+        this.cm = manager;
         this.partiesKeywords = partiesKeywords;
     }
 
@@ -38,26 +37,34 @@ public class SystemOutBolt extends BaseRichBolt {
     public void execute(Tuple tuple) {
 
 		String text = tuple.getString(0);
-		Connection connection;
-		try {
-			connection = cm.getConnection();
-			String[] words = text.split(" ");
-			for (String word : words) {
-				word = word.replace("#", "").toLowerCase();
-				String party = partiesKeywords.get(word);
-				if (party != null) {
-					PreparedStatement stmt = connection
-							.prepareStatement("insert into party(name, quantity) values(?,1) ON DUPLICATE KEY UPDATE quantity = quantity + 1;");
-					stmt.setString(1, party);
-					stmt.execute();
-				}
-			}
-			connection.close();
-		} catch (SQLException e) {
-			LOG.log(Level.ERROR, "SQL error in Bolt \n" + ExceptionUtils.getStackTrace(e));
-		}
-		_collector.ack(tuple);
-	}
+        if (text != null || text.length() == 0) {
+            Connection connection = null;
+            try {
+                connection = cm.getConnection();
+                String[] words = text.split(" ");
+                for (String word : words) {
+                    word = word.replace("#", "").toLowerCase();
+                    String party = partiesKeywords.get(word);
+                    if (party != null) {
+                        PreparedStatement stmt = connection
+                                .prepareStatement("insert into party(name, quantity) values(?,1) ON DUPLICATE KEY UPDATE quantity = quantity + 1;");
+                        stmt.setString(1, party);
+                        stmt.execute();
+                    }
+                }
+            } catch (SQLException e) {
+                LOG.log(Level.ERROR, "SQL error in Bolt \n" + ExceptionUtils.getStackTrace(e));
+            } finally {
+                if (connection != null) {
+                    try {
+                        connection.close();
+                    } catch (SQLException e) {
+                    }
+                }
+            }
+        }
+        _collector.ack(tuple);
+    }
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer ofd) {
