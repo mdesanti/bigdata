@@ -29,12 +29,22 @@ In there, there should be the following files and directories:
 6. custom-sink.jar
 7. storm.jar
 
+#Flume
+
 If you want to run twitter client and then process those files with flume, execute the following:
 
 ```
 java -jar twitter-client.jar
 ./apache-flume-1.4.0-SNAPSHOT-bin/bin/flume-ng agent -n a1 -c apache-flume-1.4.0-SNAPSHOT-bin/conf/ -f flume.conf -C custom-sink.jar
 ```
+
+Or just copy the files to process to /tweets and execute the following:
+
+```
+./apache-flume-1.4.0-SNAPSHOT-bin/bin/flume-ng agent -n a1 -c apache-flume-1.4.0-SNAPSHOT-bin/conf/ -f flume.conf -C custom-sink.jar
+```
+
+#Storm
 
 Storm must be run from datanode 4. To do so, copy storm to datanode 4 executing:
 `scp storm.jar hadoop-2013-datanode-4:grupo2`.
@@ -55,25 +65,14 @@ the UI using the following:
 
 ./execute_in_some.sh "nohup ~/storm-0.8.2/bin/storm supervisor 2> /dev/null &"
 
-## Flume
+#MySQL
 
-1- After you download flume
 
-```
-$ cp flume-ng-dist/target/apache-flume-1.4.0-SNAPSHOT-bin.tar.gz .
+Results processed in storm are stored in a table in sql.
 
-$ tar -zxvf apache-flume-1.4.0-SNAPSHOT-bin.tar.gz
-```
-2- To run using flume.conf file located in config directory
+The table is called `party` and has a column `name` with the party name and a column `quantity` with the quantity of matches for that party.
 
-```
-./apache-flume-1.4.0-SNAPSHOT-bin/bin/flume-ng agent -n a1 -c apache-flume-1.4.0-SNAPSHOT-bin/conf/ -f flume.conf
-```
+To get the final statisticts just run the following query:
 
-If you want to debug, set the sink to be logger and add the following line to the previous:
-```
--Dflume.root.logger=INFO,console
--C custom-sink.jar
-```
-
+`select name, quantity from party;`
 
