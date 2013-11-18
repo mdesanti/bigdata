@@ -44,6 +44,8 @@ Or just copy the files to process to /tweets and execute the following:
 ./apache-flume-1.4.0-SNAPSHOT-bin/bin/flume-ng agent -n a1 -c apache-flume-1.4.0-SNAPSHOT-bin/conf/ -f flume.conf -C custom-sink.jar
 ```
 
+Twitter client source code can be found [here](https://github.com/mdesanti/twitter-client)
+
 #Storm
 
 Storm must be run from datanode 4. To do so, copy storm to datanode 4 executing:
