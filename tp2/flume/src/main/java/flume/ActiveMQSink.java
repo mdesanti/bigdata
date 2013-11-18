@@ -10,6 +10,7 @@ import javax.jms.*;
 public class ActiveMQSink extends AbstractSink implements Configurable {
 
 	private static String TOPIC_NAME = "TWITTER-G1";
+	private static String ACTIVEMQ_HOST = "tcp://54.234.240.27:61616";
 
 	MessageProducer producer;
 	Session session;
@@ -48,7 +49,7 @@ public class ActiveMQSink extends AbstractSink implements Configurable {
     public ActiveMQConnectionFactory getConnectionFactory() {
         if (connectionFactory == null) {
             connectionFactory = new ActiveMQConnectionFactory(
-                "tcp://10.117.39.161:61616");
+                ACTIVEMQ_HOST);
         }
         return connectionFactory;
     }
