@@ -48,10 +48,12 @@ public class SystemOutBoltTest {
     @Test
     public void testHappyPathExecute() throws SQLException {
         Tuple mockTuple = mock(Tuple.class);
+        
+        bolt.connection = mockConnection;
 
         when(mockConnection.prepareStatement(Matchers.<String>any()))
                 .thenReturn(mockStatement);
-        when(mockTuple.getString(0)).thenReturn("a");
+        when(mockTuple.getString(0)).thenReturn("{ \"text\": \"a\" }");
 
         bolt.execute(mockTuple);
 
@@ -59,16 +61,17 @@ public class SystemOutBoltTest {
         verify(mockStatement).execute();
         verifyNoMoreInteractions(mockStatement);
         verify(mockCollector).ack(mockTuple);
-        verify(mockConnection).close();
     }
 
     @Test
     public void testHappyPathMultipleMatchesExecute() throws SQLException {
         Tuple mockTuple = mock(Tuple.class);
+        
+        bolt.connection = mockConnection;
 
         when(mockConnection.prepareStatement(Matchers.<String>any()))
                 .thenReturn(mockStatement);
-        when(mockTuple.getString(0)).thenReturn("a c a");
+        when(mockTuple.getString(0)).thenReturn("{ \"text\": \"a c a\" }");
 
         bolt.execute(mockTuple);
 
@@ -85,35 +88,11 @@ public class SystemOutBoltTest {
 
         when(mockConnection.prepareStatement(Matchers.<String>any()))
                 .thenReturn(mockStatement);
-        when(mockTuple.getString(0)).thenReturn("zarasa");
+        when(mockTuple.getString(0)).thenReturn("{ \"text\": \"zarasa\" }");
 
         bolt.execute(mockTuple);
 
         verifyNoMoreInteractions(mockStatement);
         verify(mockCollector).ack(mockTuple);
-    }
-
-    @SuppressWarnings("unchecked")
-    @Test
-    public void testNoConnectionClosesDatabaseOnExecute() throws SQLException {
-        Tuple mockTuple = mock(Tuple.class);
-
-        when(mockConnection.prepareStatement(Matchers.<String>any()))
-                .thenThrow(SQLException.class);
-        when(mockTuple.getString(0)).thenReturn("zarasa");
-
-        bolt.execute(mockTuple);
-
-        verify(mockConnection).close();
-    }
-
-    @SuppressWarnings("unchecked")
-    @Test
-    public void testNoConnectionIsStablishedWhenEmptyOrNullTextOnExecute() throws SQLException {
-        Tuple mockTuple = mock(Tuple.class);
-
-        bolt.execute(mockTuple);
-
-        verifyZeroInteractions(mockManager);
     }
 }

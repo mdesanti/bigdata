@@ -10,6 +10,9 @@ import jdbc.ConnectionManager;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 import java.nio.charset.Charset;
 import java.sql.Connection;
@@ -27,6 +30,7 @@ public class SystemOutBolt extends BaseRichBolt {
     OutputCollector _collector;
     private ConnectionManager cm;
     private HashMap<String, String> partiesKeywords = new HashMap<String, String>();
+    Connection connection = null;
 
     public SystemOutBolt(HashMap<String, String> partiesKeywords, ConnectionManager manager) {
         this.cm = manager;
@@ -37,8 +41,24 @@ public class SystemOutBolt extends BaseRichBolt {
     public void execute(Tuple tuple) {
 
 		String text = tuple.getString(0);
-        if (text != null && text.length() != 0) {
-            Connection connection = null;
+		JSONObject json = null;
+		try {
+			json = (JSONObject) new JSONParser().parse(text);
+			String tweet = new String(((String) json.get("text")).getBytes(),
+					CHARSET).toLowerCase();
+			parseTweet(tweet);
+		} catch (ParseException e1) {
+			LOG.log(Level.ERROR, "Error while parsing json:" + text + "\n" + ExceptionUtils.getStackTrace(e1));
+		}
+        _collector.ack(tuple);
+    }
+
+    private void parseTweet(String text) {
+    	if(connection == null) {
+    		LOG.log(Level.ERROR, "Cannot work with null connection to mysql \n");
+    		return;
+    	}
+    	if (text != null && text.length() != 0) {
             try {
                 connection = cm.getConnection();
                 String[] words = text.split(" ");
@@ -54,19 +74,11 @@ public class SystemOutBolt extends BaseRichBolt {
                 }
             } catch (SQLException e) {
                 LOG.log(Level.ERROR, "SQL error in Bolt \n" + ExceptionUtils.getStackTrace(e));
-            } finally {
-                if (connection != null) {
-                    try {
-                        connection.close();
-                    } catch (SQLException e) {
-                    }
-                }
-            }
+            } 
         }
-        _collector.ack(tuple);
-    }
+	}
 
-    @Override
+	@Override
     public void declareOutputFields(OutputFieldsDeclarer ofd) {
         ofd.declare(new Fields("word"));
     }
@@ -76,6 +88,20 @@ public class SystemOutBolt extends BaseRichBolt {
     public void prepare(Map stormConf, TopologyContext context,
                         OutputCollector collector) {
         _collector = collector;
+        try {
+			connection = cm.getConnection();
+		} catch (SQLException e) {
+			LOG.log(Level.ERROR, "Failed to initialize connection to mysql \n" + ExceptionUtils.getStackTrace(e));
+		}
+    }
+    
+    @Override
+    public void cleanup() {
+    	try {
+			connection.close();
+		} catch (SQLException e) {
+			LOG.log(Level.ERROR, "Failed to close connection to mysql \n" + ExceptionUtils.getStackTrace(e));
+		}
     }
 
 }

@@ -27,6 +27,7 @@ public class TwitterActiveMQSpout extends BaseRichSpout implements
 	private static Charset CHARSET = Charset.forName("ISO-8859-1");
 	public static Logger LOG = Logger.getLogger(TwitterActiveMQSpout.class);
 	private static String QUEUE_NAME = "TWITTER-G1";
+	private static String ACTIVEMQ_HOST = "tcp://54.234.240.27:61616";
 
 	MessageConsumer consumer;
 	Session session;
@@ -57,7 +58,7 @@ public class TwitterActiveMQSpout extends BaseRichSpout implements
             // Create a MessageProducer from the Session to the Queue
             consumer = session.createConsumer(destination);
         } catch (JMSException e) {
-            e.printStackTrace();
+        	LOG.log(Level.ERROR, "JMS error while connecting to queue \n" + ExceptionUtils.getStackTrace(e));
         }
     }
 
@@ -70,7 +71,7 @@ public class TwitterActiveMQSpout extends BaseRichSpout implements
     public ActiveMQConnectionFactory getConnectionFactory() {
         if (connectionFactory == null) {
             connectionFactory = new ActiveMQConnectionFactory(
-                    "tcp://10.117.39.161:61616");
+            		ACTIVEMQ_HOST);
         }
         return connectionFactory;
     }
@@ -91,7 +92,7 @@ public class TwitterActiveMQSpout extends BaseRichSpout implements
 			session.close();
 			connection.close();
 		} catch (JMSException e) {
-			e.printStackTrace();
+			LOG.log(Level.ERROR, "JMS exception in Spout while closing connection\n" + ExceptionUtils.getStackTrace(e));
 		}
 	}
 
@@ -104,23 +105,11 @@ public class TwitterActiveMQSpout extends BaseRichSpout implements
 			if (message instanceof TextMessage) {
 				TextMessage textMessage = (TextMessage) message;
 				String text = textMessage.getText();
-				json = (JSONObject) new JSONParser().parse(text);
-				String tweet = new String(((String) json.get("text")).getBytes(),
-						CHARSET).toLowerCase();
-				_collector.emit(new Values(tweet));
+				_collector.emit(new Values(text));
 			} else {
 			}
 		} catch (JMSException e) {
-			e.printStackTrace();
-		} catch (ParseException e) {
-			TextMessage textMessage = (TextMessage) message;
-			String text;
-			try {
-				text = textMessage.getText();
-				LOG.log(Level.ERROR, "Parse error in Spout \n" + ExceptionUtils.getStackTrace(e) + "\n For Text: " + text);
-			} catch (JMSException e1) {
-				LOG.log(Level.ERROR, ExceptionUtils.getStackTrace(e));
-			}
+			LOG.log(Level.ERROR, "JMS exception in Spout\n" + ExceptionUtils.getStackTrace(e));
 		}
 
 	}
