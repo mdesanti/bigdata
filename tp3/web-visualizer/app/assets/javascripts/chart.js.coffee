@@ -7,28 +7,6 @@ $ ->
 
     chart = undefined
     $("#container").highcharts
-      chart:
-        type: "spline"
-        animation: Highcharts.svg # don't animate in old IE
-        marginRight: 10
-        events:
-          load: ->
-            
-            # set up the updating of the chart each second
-            series = @series
-            setInterval (->
-              i = 0
-              console.log window.parties.lenth
-              while i <= (window.parties.lenth - 1)
-                $.ajax(
-                  url: "tweets?name=" + window.parties[i]
-                ).done (data) ->
-                  console.log data
-                  x = (new Date()).getTime() # current time
-                  y = Math.random()
-                  series[i].addPoint [x+i, y+i], true, false
-                i++
-            ), 1000
 
       title:
         text: "Live random data"
@@ -58,32 +36,34 @@ $ ->
         enabled: false
 
       series: [
-        { name: "Random data"
-        data: (->
-          
-          # generate an array of random data
-          data = []
-          time = (new Date()).getTime()
-          i = 1
-          data.push
-            x: time + i * 1000
-            y: Math.random()
-
-          data
-        )() },
-        { name: "Random data 2"
-        data: (->
-          
-          # generate an array of random data
-          data = []
-          time = (new Date()).getTime()
-          i = 1
-          data.push
-            x: time + i * 1000
-            y: Math.random()
-
-          data
-        )()}
+        { name: 'pro', data: []},
+        { name: 'unen', data: []},
+        { name: 'otros', data: []},
+        { name: 'frente renovador', data: []},
+        { name: 'fpv', data: []}
       ]
+
+      chart:
+        type: "spline"
+        animation: Highcharts.svg # don't animate in old IE
+        marginRight: 10
+        events:
+          load: ->
+            
+            # set up the updating of the chart each second
+            index = 0
+            while index <= (window.parties.length - 1)
+              serie = this.series[index]
+              party = window.parties[index]
+              setInterval (->
+                console.log('Before request for ' + party)
+                $.ajax(
+                  url: "tweets?name=" + party
+                ).done (data) ->
+                  x = (new Date()).getTime() # current time
+                  y = data.charts[0].quantity
+                  serie.addPoint [x, y], true, false
+              ), 3000
+              index++
 
 

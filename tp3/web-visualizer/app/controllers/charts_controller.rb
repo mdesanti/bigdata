@@ -4,6 +4,6 @@ class ChartsController < ApplicationController
   end
 
   def tweets_for
-    render json: TweetCounter.where('lower(name) = ?', params[:name]).to_json
+    render json: TweetCounter.where('lower(name) = ?', params[:name])
   end
 end
