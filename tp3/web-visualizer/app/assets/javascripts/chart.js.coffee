@@ -51,19 +51,28 @@ $ ->
           load: ->
             
             # set up the updating of the chart each second
-            index = 0
-            while index <= (window.parties.length - 1)
-              serie = this.series[index]
-              party = window.parties[index]
-              setInterval (->
-                console.log('Before request for ' + party)
-                $.ajax(
-                  url: "tweets?name=" + party
-                ).done (data) ->
-                  x = (new Date()).getTime() # current time
-                  y = data.charts[0].quantity
-                  serie.addPoint [x, y], true, false
-              ), 3000
-              index++
+            series = this.series
+            setInterval (->
+              $.ajax(
+                url: "tweets"
+              ).done (data) ->
+                x = (new Date()).getTime() # current time
+                $.each(data.charts, (index, value) ->
+                  i = window.parties.indexOf(value.name.toLowerCase())
+                  y = value.quantity
+                  series[i].addPoint [x, y], true, false
+                )
+            ), 3000
+
+
+
+
+
+
+
+
+
+
+
 
 

@@ -16,4 +16,4 @@
 //= require highcharts
 //= require highcharts/highcharts-more
 //= require highcharts/themes/dark-blue
-//= require_tree .
+//= require chart
