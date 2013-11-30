@@ -12,8 +12,10 @@
 //
 //= require jquery
 //= require jquery_ujs
+//= require twitter/bootstrap
 //= require turbolinks
 //= require highcharts
 //= require highcharts/highcharts-more
-//= require highcharts/themes/dark-blue
+//= require highcharts/themes/gray
 //= require chart
+
