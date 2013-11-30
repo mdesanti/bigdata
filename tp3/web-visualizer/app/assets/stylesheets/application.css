@@ -12,7 +12,11 @@
  *= require bootstrap_and_overrides
  */
 
- .ivory {
+.ivory {
   background-color: #E0FFFF;
   min-height: 900px;
- }
+}
+
+.padding-top-50px {
+  padding-top: 50px;
+}

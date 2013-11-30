@@ -4,4 +4,20 @@
       .col-lg-12.text-center
         %h1= "Big Data"
         %h3= "Trabajo práctico nro 3"
-  #container{style: "min-width: 310px; height: 400px; margin: 0 auto"}
+    #tweets{style: "min-width: 310px; height: 400px; margin: 0 auto"}
+  .container
+    .row-fluid.padding-top-50px
+      / Nav tabs
+      %ul.nav.nav-tabs#tabs
+        - @airlines.each_with_index do |data|
+          %li
+            %a{"data-toggle" => "tab", href: "\##{data.first}"}= data.last
+      / Tab panes
+      .tab-content#airlines
+        - @airlines.each_with_index do |data, index|
+          - if index == 0
+            %div.tab-pane.active.data{id: "#{data.first}"}
+              %div{id: "chart-#{data.first}", style: "min-width: 310px; height: 400px; margin: 0 auto"}
+          - else
+            %div.tab-pane.data{id: "#{data.first}"}
+              %div{id: "chart-#{data.first}", style: "min-width: 310px; height: 400px; margin: 0 auto"}

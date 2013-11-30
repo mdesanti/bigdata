@@ -6,7 +6,7 @@ $ ->
     window.parties = ['pro', 'unen', 'otros', 'frente renovador', 'fpv']
 
     chart = undefined
-    $("#container").highcharts
+    $("#tweets").highcharts
 
       chart:
         type: "spline"
@@ -96,3 +96,80 @@ $ ->
           }
         }
       ]
+
+    $.each($('#airlines .data'), (index, value) ->
+      code = $(value).attr('id')
+      $.ajax(
+        url: "miles?" + 'code=' + code
+      ).done (data) ->
+        console.log data
+        airline = data.charts[0].airline_name
+        years = getYears(data.charts)
+        miles = getMiles(data.charts)
+        create_chart(code, airline, years, miles)
+    )
+
+    tabs = $('#tabs li a')
+    $(tabs).each ->
+      $(window).resize()
+
+
+getYears = (data) ->
+  years = []
+  $.each(data, (index, value) ->
+    years.push(value.year)
+  )
+  return years
+
+getMiles = (data) ->
+  miles = []
+  $.each(data, (index, value) ->
+    miles.push(parseInt(value.miles))
+  )  
+  return miles
+
+create_chart = (id, airline, years, miles) ->
+  $("#chart-" + id).highcharts
+    chart:
+      type: "column"
+      margin: [50, 50, 100, 80]
+
+    title:
+      text: "Flown miles for " + airline + " per year"
+
+    xAxis:
+      categories: years
+      labels:
+        rotation: -45
+        align: "right"
+        style:
+          fontSize: "13px"
+          fontFamily: "Verdana, sans-serif"
+
+    yAxis:
+      min: 0
+      title:
+        text: "Flown Miles"
+
+    legend:
+      enabled: false
+
+    tooltip:
+      pointFormat: "Population in 2008: <b>{point.y:.1f} millions</b>"
+
+    series: [
+      name: "Flown Miles"
+      data: miles
+      dataLabels:
+        enabled: true
+        rotation: -90
+        color: "#FFFFFF"
+        align: "right"
+        x: 4
+        y: 10
+        style:
+          fontSize: "13px"
+          fontFamily: "Verdana, sans-serif"
+          textShadow: "0 0 3px black"
+    ]
+        
