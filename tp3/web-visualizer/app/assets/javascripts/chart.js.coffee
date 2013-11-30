@@ -155,7 +155,7 @@ create_chart = (id, airline, years, miles) ->
       enabled: false
 
     tooltip:
-      pointFormat: "Population in 2008: <b>{point.y:.1f} millions</b>"
+      pointFormat: "Flown miles: <b>{point.y:.1f}</b>"
 
     series: [
       name: "Flown Miles"
